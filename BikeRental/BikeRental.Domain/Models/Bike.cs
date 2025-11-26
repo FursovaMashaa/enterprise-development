@@ -18,10 +18,10 @@ public class Bike
     /// <summary>
     ///     Color of the bicycle
     /// </summary>
-    public required string Color { get; set; }
+    public string? Color { get; set; }
     
     /// <summary>
     ///     Reference to the bicycle model specifications
     /// </summary>
-    public int ModelId { get; set; } 
+    public required BikeModel Model { get; set; } 
 }
