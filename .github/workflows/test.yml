@@ -20,10 +20,10 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore BikeRental/BikeRental.sln
 
     - name: Build solution
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build BikeRental/BikeRental.sln --no-restore --configuration Release
 
     - name: Run unit tests
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      run: dotnet test BikeRental/BikeRental.sln --no-build --configuration Release --verbosity normal
