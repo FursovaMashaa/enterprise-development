@@ -239,7 +239,9 @@ public class DataSeed
         };
     }
 
-    /// <summary>Initializes the list of renters/customers</summary>
+    /// <summary>
+    /// Initializes the list of renters/customers
+    /// </summary>
     private static List<Renter> InitializeRenters()
     {
         return new List<Renter>
@@ -328,7 +330,9 @@ public class DataSeed
         };
     }
 
-    /// <summary>Initializes the list of rental transactions</summary>
+    /// <summary>
+    /// Initializes the list of rental transactions
+    /// </summary>
     private List<Rental> InitializeRentals()
     {
         return new List<Rental>
@@ -338,160 +342,160 @@ public class DataSeed
                 Id = 1, 
                 StartTime = new DateTime(2024, 1, 10, 9, 0, 0), 
                 DurationHours = 3,
-                BikeId = Bikes[0],
-                RenterId = Renters[0]
+                Bike = Bikes[0],
+                Renter = Renters[0]
             },
             new () 
             { 
                 Id = 2, 
                 StartTime = new DateTime(2024, 1, 12, 14, 30, 0), 
                 DurationHours = 2,
-                BikeId = Bikes[1],
-                RenterId = Renters[1]
+                Bike = Bikes[1],
+                Renter = Renters[1]
             },
             new () 
             { 
                 Id = 3, 
                 StartTime = new DateTime(2024, 1, 15, 10, 0, 0), 
                 DurationHours = 5,
-                BikeId = Bikes[2],
-                RenterId = Renters[2]
+                Bike = Bikes[2],
+                Renter = Renters[2]
             },
             new ()
             { 
                 Id = 4, 
                 StartTime = new DateTime(2024, 1, 18, 16, 45, 0), 
                 DurationHours = 1,
-                BikeId = Bikes[3],
-                RenterId = Renters[3]
+                Bike = Bikes[3],
+                Renter = Renters[3]
             },
             new () 
             { 
                 Id = 5, 
                 StartTime = new DateTime(2024, 1, 20, 11, 0, 0), 
                 DurationHours = 4,
-                BikeId = Bikes[4],
-                RenterId = Renters[4]
+                Bike = Bikes[4],
+                Renter = Renters[4]
             },
             new ()
             { 
                 Id = 6, 
                 StartTime = new DateTime(2024, 1, 22, 13, 15, 0), 
                 DurationHours = 2,
-                BikeId = Bikes[0],
-                RenterId = Renters[1]
+                Bike = Bikes[0],
+                Renter = Renters[1]
             },
             new () 
             { 
                 Id = 7, 
                 StartTime = new DateTime(2024, 1, 25, 15, 30, 0), 
                 DurationHours = 3,
-                BikeId = Bikes[1],
-                RenterId = Renters[2]
+                Bike = Bikes[1],
+                Renter = Renters[2]
             },
             new ()
             { 
                 Id = 8, 
                 StartTime = new DateTime(2024, 1, 28, 8, 45, 0), 
                 DurationHours = 6,
-                BikeId = Bikes[2],
-                RenterId = Renters[0]
+                Bike = Bikes[2],
+                Renter = Renters[0]
             },
             new () 
             { 
                 Id = 9, 
                 StartTime = new DateTime(2024, 2, 1, 12, 0, 0), 
                 DurationHours = 2,
-                BikeId = Bikes[3],
-                RenterId = Renters[3]
+                Bike = Bikes[3],
+                Renter = Renters[3]
             },
             new () 
             { 
                 Id = 10, 
                 StartTime = new DateTime(2024, 2, 3, 17, 20, 0), 
                 DurationHours = 1,
-                BikeId = Bikes[4],
-                RenterId = Renters[4]
+                Bike = Bikes[4],
+                Renter = Renters[4]
             },
             new () 
             { 
                 Id = 11, 
                 StartTime = new DateTime(2024, 2, 5, 10, 30, 0), 
                 DurationHours = 4,
-                BikeId = Bikes[5],
-                RenterId = Renters[5]
+                Bike = Bikes[5],
+                Renter = Renters[5]
             },
             new () 
             { 
                 Id = 12, 
                 StartTime = new DateTime(2024, 2, 8, 14, 0, 0), 
                 DurationHours = 3,
-                BikeId = Bikes[6],
-                RenterId = Renters[6]
+                Bike = Bikes[6],
+                Renter = Renters[6]
             },
             new () 
             { 
                 Id = 13, 
                 StartTime = new DateTime(2024, 2, 12, 11, 15, 0), 
                 DurationHours = 2,
-                BikeId = Bikes[7],
-                RenterId = Renters[7]
+                Bike = Bikes[7],
+                Renter = Renters[7]
             },
             new () 
             { 
                 Id = 14, 
                 StartTime = new DateTime(2024, 2, 15, 16, 45, 0), 
                 DurationHours = 5,
-                BikeId = Bikes[8],
-                RenterId = Renters[8]
+                Bike = Bikes[8],
+                Renter = Renters[8]
             },
             new () 
             { 
                 Id = 15, 
                 StartTime = new DateTime(2024, 2, 18, 9, 30, 0), 
                 DurationHours = 1,
-                BikeId = Bikes[9],
-                RenterId = Renters[9]
+                Bike= Bikes[9],
+                Renter = Renters[9]
             },
             new () 
             { 
                 Id = 16, 
                 StartTime = new DateTime(2024, 2, 20, 13, 0, 0), 
                 DurationHours = 3,
-                BikeId = Bikes[5],
-                RenterId = Renters[0]
+                Bike = Bikes[5],
+                Renter = Renters[0]
             },
             new () 
             { 
                 Id = 17, 
                 StartTime = new DateTime(2024, 2, 22, 15, 20, 0), 
                 DurationHours = 2,
-                BikeId = Bikes[6],
-                RenterId = Renters[1]
+                Bike = Bikes[6],
+                Renter = Renters[1]
             },
             new () 
             { 
                 Id = 18, 
                 StartTime = new DateTime(2024, 2, 25, 10, 45, 0), 
                 DurationHours = 4,
-                BikeId = Bikes[7],
-                RenterId = Renters[2]
+                Bike = Bikes[7],
+                Renter = Renters[2]
             },
             new () 
             { 
                 Id = 19, 
                 StartTime = new DateTime(2024, 2, 28, 17, 30, 0), 
                 DurationHours = 1,
-                BikeId = Bikes[8],
-                RenterId= Renters[3]
+                Bike = Bikes[8],
+                Renter= Renters[3]
             },
             new () 
             { 
                 Id = 20, 
                 StartTime = new DateTime(2024, 3, 2, 12, 15, 0), 
                 DurationHours = 6,
-                BikeId= Bikes[9],
-                RenterId = Renters[4]
+                Bike= Bikes[9],
+                Renter = Renters[4]
             }
         };
     }

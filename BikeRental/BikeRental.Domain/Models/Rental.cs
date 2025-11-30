@@ -23,10 +23,10 @@ public class Rental
     /// <summary>
     ///     Reference to the rented bicycle
     /// </summary>
-    public required Bike BikeId { get; set; }
+    public required Bike Bike { get; set; }
     
     /// <summary>
     ///     Reference to the customer who rented the bicycle
     /// </summary>
-    public required Renter RenterId { get; set; }
+    public required Renter Renter { get; set; }
 }
