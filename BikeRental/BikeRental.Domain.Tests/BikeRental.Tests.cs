@@ -1,41 +1,46 @@
 using BikeRental.Domain.DataSeed;
-using BikeRental.Domain.Entities;
-using Xunit;
+using BikeRental.Domain.Enums;
 
 namespace BikeRental.Domain.Tests;
 
-public class BikeRentalTests(DataSeed.DataSeed seed) : IClassFixture<DataSeed.DataSeed>
+public class BikeRentalTests(DataSeeder seed) : IClassFixture<DataSeeder>
 {
     /// <summary>
-    ///     Retrieves and validates all bicycles categorized as sport type for rental availability
+    /// Retrieves and validates all bicycles categorized as sport type for rental availability
     /// </summary>
     [Fact(DisplayName = "Sport Bicycle Inventory Check")]
     public void GetAllSportBicycles()
     {
+        var expectedCount = 3;
+        var expectedSerialNumber1 = "RD0022024";
+        var expectedSerialNumber2 = "SPT0052025";
+
         var sportBikes = seed.Bikes
             .Where(b => b.Model.BikeType == BikeType.Sport)
-            .Select(b => new
-            {
-                b.Id,
-                b.SerialNumber,
-                b.Color,
-                ModelId = b.Model.Id,
-                Type = b.Model.BikeType
-            })
             .ToList();
 
-        Assert.Equal(3, sportBikes.Count);
-        Assert.Contains(sportBikes, b => b.SerialNumber == "RD0022024");
-        Assert.Contains(sportBikes, b => b.SerialNumber == "SPT0052025");
-        Assert.All(sportBikes, bike => Assert.Equal(BikeType.Sport, bike.Type));
+        Assert.Equal(expectedCount, sportBikes.Count);
+        Assert.Contains(sportBikes, b => b.SerialNumber == expectedSerialNumber1);
+        Assert.Contains(sportBikes, b => b.SerialNumber == expectedSerialNumber2);
+        Assert.All(sportBikes, bike => Assert.Equal(BikeType.Sport, bike.Model.BikeType));
     }
 
     /// <summary>
-    ///     Analyzes and ranks bicycle models by total rental revenue to identify top performers
+    /// Analyzes and ranks bicycle models by total rental revenue to identify top performers
     /// </summary>
     [Fact(DisplayName = "Revenue Analysis - Top Bicycle Models")]
     public void AnalyzeTopRevenueModels()
     {
+        var expectedTopCount = 5;
+        var expectedRevenue = new Dictionary<int, decimal>
+        {
+            [9] = 111.00m,
+            [5] = 75.00m,
+            [6] = 64.40m,
+            [3] = 60.50m,
+            [2] = 60.00m
+        };
+
         var revenueByModel = seed.Rentals
             .GroupBy(r => r.Bike.Model.Id)
             .Select(g => new
@@ -46,74 +51,78 @@ public class BikeRentalTests(DataSeed.DataSeed seed) : IClassFixture<DataSeed.Da
             })
             .OrderByDescending(x => x.Revenue)
             .ThenBy(x => x.ModelId)
-            .Take(5)
+            .Take(expectedTopCount)
             .ToList();
 
-        Assert.Equal(5, revenueByModel.Count);
-        
-        var expectedRevenue = new Dictionary<int, decimal>
-        {
-            [9] = 111.00m,
-            [5] = 75.00m,
-            [6] = 64.40m,
-            [3] = 60.50m,
-            [2] = 60.00m
-        };
-
-        foreach (var row in revenueByModel)
-        {
-            Assert.Equal(expectedRevenue[row.ModelId], Math.Round(row.Revenue, 2));
-        }
+        Assert.Equal(expectedTopCount, revenueByModel.Count);
+        Assert.Equal(
+            expectedRevenue,
+            revenueByModel.ToDictionary(r => r.ModelId, r => r.Revenue)
+        );
     }
 
     /// <summary>
-    ///     Evaluates bicycle models based on total rental duration to determine usage patterns
+    /// Evaluates bicycle models based on total rental duration to determine usage patterns
     /// </summary>
     [Fact(DisplayName = "Usage Patterns - Most Rented Models")]
     public void EvaluateMostUsedModels()
     {
+        var expectedTopCount = 5;
+        var expectedTotalHours = new Dictionary<int, double>
+        {
+            [3] = 11.0,
+            [6] = 7.0,
+            [10] = 7.0,
+            [8] = 6.0,
+            [9] = 6.0
+        };
+
         var usageByModel = seed.Rentals
             .GroupBy(r => r.Bike.Model)
             .Select(g => new
             {
-                Model = g.Key,
+                ModelId = g.Key.Id,
                 TotalRentalHours = g.Sum(r => r.DurationHours),
                 AverageRentalTime = g.Average(r => r.DurationHours)
             })
             .OrderByDescending(x => x.TotalRentalHours)
-            .Take(5)
+            .Take(expectedTopCount)
             .ToList();
 
-        Assert.Equal(5, usageByModel.Count);
-        
-        Assert.All(usageByModel, model => 
+        Assert.Equal(expectedTopCount, usageByModel.Count);
+
+        foreach (var model in usageByModel)
         {
-            Assert.True(model.TotalRentalHours > 0);
+            Assert.Equal(expectedTotalHours[model.ModelId], model.TotalRentalHours);
             Assert.True(model.AverageRentalTime > 0);
-        });
+        }
     }
 
     /// <summary>
-    ///     Calculates comprehensive rental duration statistics for business analysis
+    /// Calculates comprehensive rental duration statistics for business analysis
     /// </summary>
     [Fact(DisplayName = "Rental Duration Analytics")]
     public void CalculateRentalStatistics()
     {
+        var expectedMinRental = 1;
+        var expectedMaxRental = 6;
+        var expectedAvgRental = 3.0;
+
         var rentalDurations = seed.Rentals
-            .Select(r => new { r.Id, r.DurationHours })
+            .Select(r => r.DurationHours)
             .ToList();
 
-        var minRental = rentalDurations.Min(r => r.DurationHours);
-        var maxRental = rentalDurations.Max(r => r.DurationHours);
-        var avgRental = rentalDurations.Average(r => r.DurationHours);
+        var minRental = rentalDurations.Min();
+        var maxRental = rentalDurations.Max();
+        var avgRental = rentalDurations.Average();
 
-        Assert.True(minRental >= 1, "Minimum rental should be at least 1 hour");
-        Assert.True(maxRental <= 24, "Maximum rental should be reasonable");
-        Assert.True(avgRental >= minRental && avgRental <= maxRental);
+        Assert.Equal(expectedMinRental, minRental);
+        Assert.Equal(expectedMaxRental, maxRental);
+        Assert.Equal(expectedAvgRental, Math.Round(avgRental, 2));
     }
 
     /// <summary>
-    ///     Measures total utilization hours for each bicycle category in the rental fleet
+    /// Measures total utilization hours for each bicycle category in the rental fleet
     /// </summary>
     [Theory(DisplayName = "Fleet Utilization by Category")]
     [InlineData(BikeType.Sport, 16)]
@@ -127,14 +136,17 @@ public class BikeRentalTests(DataSeed.DataSeed seed) : IClassFixture<DataSeed.Da
             .Sum(rent => rent.DurationHours);
 
         Assert.Equal(expectedUtilization, actualHours);
-    }   
+    }
 
     /// <summary>
-    ///     Identifies most frequent customers based on rental transaction volume
+    /// Identifies most frequent customers based on rental transaction volume
     /// </summary>
     [Fact(DisplayName = "Customer Loyalty Analysis")]
     public void IdentifyFrequentCustomers()
     {
+        var expectedTopFrequency = 3;
+        var expectedLoyalCustomersCount = 5;
+
         var customerActivity = seed.Rentals
             .GroupBy(r => r.Renter)
             .Select(g => new
@@ -149,10 +161,13 @@ public class BikeRentalTests(DataSeed.DataSeed seed) : IClassFixture<DataSeed.Da
             .ToList();
 
         var topFrequency = customerActivity.Max(x => x.RentalFrequency);
-        var loyalCustomers = customerActivity.Where(x => x.RentalFrequency == topFrequency).ToList();
+        var loyalCustomers = customerActivity
+            .Where(x => x.RentalFrequency == topFrequency)
+            .ToList();
 
-        Assert.True(topFrequency >= 1, "Top customers should have at least one rental");
-        Assert.NotEmpty(loyalCustomers);
-        Assert.All(loyalCustomers, customer => Assert.Equal(topFrequency, customer.RentalFrequency));
+        Assert.Equal(expectedTopFrequency, topFrequency);
+        Assert.Equal(expectedLoyalCustomersCount, loyalCustomers.Count);
+        Assert.All(loyalCustomers, customer =>
+            Assert.Equal(expectedTopFrequency, customer.RentalFrequency));
     }
 }

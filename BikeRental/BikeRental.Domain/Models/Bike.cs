@@ -1,7 +1,7 @@
 namespace BikeRental.Domain.Models;
 
 /// <summary>
-///     Represents a physical bicycle instance available for rental
+/// Represents a physical bicycle instance available for rental
 /// </summary>
 public class Bike
 {
@@ -9,19 +9,19 @@ public class Bike
     ///     Unique identifier for the bicycle
     /// </summary>
     public required int Id { get; set; }
-    
+
     /// <summary>
-    ///     Manufacturer's serial number of the bicycle
+    /// Manufacturer's serial number of the bicycle
     /// </summary>
-    public required string SerialNumber { get; set; } 
-    
+    public required string SerialNumber { get; set; }
+
     /// <summary>
-    ///     Color of the bicycle
+    /// Color of the bicycle
     /// </summary>
     public string? Color { get; set; }
-    
+
     /// <summary>
-    ///     Reference to the bicycle model specifications
+    /// Reference to the bicycle model specifications
     /// </summary>
-    public required BikeModel Model { get; set; } 
+    public required BikeModel Model { get; set; }
 }
