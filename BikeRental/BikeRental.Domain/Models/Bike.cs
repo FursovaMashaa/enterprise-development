@@ -6,7 +6,7 @@ namespace BikeRental.Domain.Models;
 public class Bike
 {
     /// <summary>
-    ///     Unique identifier for the bicycle
+    /// Unique identifier for the bicycle
     /// </summary>
     public required int Id { get; set; }
 

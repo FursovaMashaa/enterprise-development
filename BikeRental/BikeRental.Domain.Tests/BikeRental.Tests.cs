@@ -68,13 +68,13 @@ public class BikeRentalTests(DataSeeder seed) : IClassFixture<DataSeeder>
     public void EvaluateMostUsedModels()
     {
         var expectedTopCount = 5;
-        var expectedTotalHours = new Dictionary<int, double>
+        var expectedTotalHours = new Dictionary<int, int>
         {
-            [3] = 11.0,
-            [6] = 7.0,
-            [10] = 7.0,
-            [8] = 6.0,
-            [9] = 6.0
+            [3] = 11,
+            [6] = 7,
+            [10] = 7,
+            [8] = 6,
+            [9] = 6
         };
 
         var usageByModel = seed.Rentals
@@ -91,11 +91,8 @@ public class BikeRentalTests(DataSeeder seed) : IClassFixture<DataSeeder>
 
         Assert.Equal(expectedTopCount, usageByModel.Count);
 
-        foreach (var model in usageByModel)
-        {
-            Assert.Equal(expectedTotalHours[model.ModelId], model.TotalRentalHours);
-            Assert.True(model.AverageRentalTime > 0);
-        }
+        Assert.Equal(expectedTotalHours, usageByModel.ToDictionary(ubm => ubm.ModelId, ubm => ubm.TotalRentalHours));
+        Assert.All(usageByModel, ubm => Assert.True(ubm.AverageRentalTime > 0));
     }
 
     /// <summary>
@@ -118,7 +115,7 @@ public class BikeRentalTests(DataSeeder seed) : IClassFixture<DataSeeder>
 
         Assert.Equal(expectedMinRental, minRental);
         Assert.Equal(expectedMaxRental, maxRental);
-        Assert.Equal(expectedAvgRental, Math.Round(avgRental, 2));
+        Assert.Equal(expectedAvgRental, avgRental, 0.01);
     }
 
     /// <summary>
