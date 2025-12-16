@@ -23,5 +23,6 @@ public class Bike
     /// <summary>
     /// Reference to the bicycle model specifications
     /// </summary>
+    [NotMapped]
     public required BikeModel Model { get; set; }
 }

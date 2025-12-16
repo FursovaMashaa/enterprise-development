@@ -1,14 +1,10 @@
-﻿namespace BikeRental.Domain;
-public interface IRepository<TEntity>
-    where TEntity : class
+namespace BikeRental.Domain;
+
+public interface IRepository<T, TId> where T : class
 {
-    public Task<TEntity> Create(TEntity entity);
-
-    public Task<TEntity?> Get(Guid id);
-
-    public Task<IList<TEntity>> GetAll();
-
-    public Task<TEntity> Update(TEntity entity);
-
-    public Task<bool> Delete(Guid id);
+    public Task<T> Create(T entity);
+    public Task<bool> Delete(TId id);
+    public Task<T?> Read(TId id);
+    public Task<IList<T>> ReadAll();
+    public Task<T> Update(T entity);
 }

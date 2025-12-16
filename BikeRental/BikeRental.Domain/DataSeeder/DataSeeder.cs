@@ -1,7 +1,7 @@
 using BikeRental.Domain.Enums;
 using BikeRental.Domain.Models;
 
-namespace BikeRental.Domain.DataSeed;
+namespace BikeRental.Domain.DataSeeder;
 
 /// <summary>
 /// Provides test data for the BikeRental domain models using your class structure

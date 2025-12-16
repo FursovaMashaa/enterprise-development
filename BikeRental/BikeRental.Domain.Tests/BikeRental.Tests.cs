@@ -1,9 +1,9 @@
-using BikeRental.Domain.DataSeed;
+using BikeRental.Domain.DataSeeder;
 using BikeRental.Domain.Enums;
 
 namespace BikeRental.Domain.Tests;
 
-public class BikeRentalTests(DataSeeder seed) : IClassFixture<DataSeeder>
+public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : IClassFixture<BikeRental.Domain.DataSeeder.DataSeeder>
 {
     /// <summary>
     /// Retrieves and validates all bicycles categorized as sport type for rental availability

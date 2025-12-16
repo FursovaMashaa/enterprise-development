@@ -23,10 +23,12 @@ public class Rental
     /// <summary>
     /// Reference to the rented bicycle
     /// </summary>
+    [NotMapped]
     public required Bike Bike { get; set; }
 
     /// <summary>
     /// Reference to the customer who rented the bicycle
     /// </summary>
+    [NotMapped]
     public required Renter Renter { get; set; }
 }
