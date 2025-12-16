@@ -1,4 +1,5 @@
 using BikeRental.Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BikeRental.Domain.Models;
 

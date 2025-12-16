@@ -1,82 +1,118 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using BikeRental.Application.Contracts;
+using BikeRental.Application.Contracts.Bike;
+using BikeRental.Application.Contracts.Renter;
 
 namespace BikeRental.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public abstract class CrudController<TDto, TCreateUpdateDto, TKey> : ControllerBase
-    where TDto : class
-    where TCreateUpdateDto : class
+public class AnalyticsController : ControllerBase
 {
-    protected readonly ILogger _logger;
-    protected readonly IApplicationService<TDto, TCreateUpdateDto, TKey> _service;
+    private readonly ILogger<AnalyticsController> _logger;
+    private readonly IAnalyticsService _analyticsService;
 
-    protected CrudController(IApplicationService<TDto, TCreateUpdateDto, TKey> service, ILogger logger)
+    public AnalyticsController(
+        IAnalyticsService analyticsService,
+        ILogger<AnalyticsController> logger)
     {
-        _service = service;
+        _analyticsService = analyticsService;
         _logger = logger;
     }
 
-    [HttpGet]
-    public virtual async Task<ActionResult<List<TDto>>> GetAll()
-    {
-        var items = await _service.GetAll();
-        return Ok(items.ToList());
-    }
-
-    [HttpGet("{id}")]
-    public virtual async Task<ActionResult<TDto>> GetById(TKey id)
-    {
-        var item = await _service.Get(id);
-        if (item == null)
-            return NotFound();
-        return Ok(item);
-    }
-
-    [HttpPost]
-    public virtual async Task<ActionResult<TDto>> Create([FromBody] TCreateUpdateDto dto)
-    {
-        var item = await _service.Create(dto);
-        var id = GetIdValue(item);
-        return CreatedAtAction(nameof(GetById), new { id }, item);
-    }
-
-    [HttpPut("{id}")]
-    public virtual async Task<ActionResult<TDto>> Update(TKey id, [FromBody] TCreateUpdateDto dto)
+    [HttpGet("sport-bikes")]
+    public async Task<ActionResult<IList<BikeDto>>> GetSportBikes()
     {
         try
         {
-            var item = await _service.Update(dto, id);
-            return Ok(item);
+            var bikes = await _analyticsService.GetAllSportBikesAsync();
+            return Ok(bikes);
         }
-        catch (KeyNotFoundException)
+        catch (Exception ex)
         {
-            return NotFound();
+            _logger.LogError(ex, "Error getting sport bikes");
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    [HttpDelete("{id}")]
-    public virtual async Task<IActionResult> Delete(TKey id)
+    [HttpGet("top-models-revenue")]
+    public async Task<ActionResult<IList<KeyValuePair<int, decimal>>>> GetTopModelsByRevenue()
     {
         try
         {
-            var result = await _service.Delete(id);
-            if (result)
-                return Ok();
-            else
-                return NotFound();
+            var models = await _analyticsService.GetTopFiveModelsByRevenueAsync();
+            return Ok(models);
         }
-        catch (KeyNotFoundException)
+        catch (Exception ex)
         {
-            return NotFound();
+            _logger.LogError(ex, "Error getting top models by revenue");
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    private object? GetIdValue(TDto dto)
+    [HttpGet("top-models-duration")]
+    public async Task<ActionResult<IList<KeyValuePair<int, int>>>> GetTopModelsByDuration()
     {
-        var prop = dto.GetType().GetProperty("Id");
-        return prop?.GetValue(dto);
+        try
+        {
+            var models = await _analyticsService.GetTopFiveModelsByTotalDurationAsync();
+            return Ok(models);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting top models by duration");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpGet("rental-stats")]
+    public async Task<ActionResult<object>> GetRentalStats()
+    {
+        try
+        {
+            var stats = await _analyticsService.GetMinMaxAvgRentDurationAsync();
+            return Ok(new 
+            { 
+                MinDuration = stats.Min, 
+                MaxDuration = stats.Max, 
+                AvgDuration = stats.Avg 
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting rental statistics");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpGet("category-utilization/{type}")]
+    public async Task<ActionResult<int>> GetCategoryUtilization(int type)
+    {
+        try
+        {
+            var hours = await _analyticsService.GetTotalRentalTimeByTypeAsync(type);
+            return Ok(hours);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting category utilization for type {Type}", type);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpGet("top-clients")]
+    public async Task<ActionResult<IList<KeyValuePair<RenterDto, int>>>> GetTopClients()
+    {
+        try
+        {
+            var clients = await _analyticsService.GetTopClientsByRentalCountAsync();
+            return Ok(clients);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting top clients");
+            return StatusCode(500, "Internal server error");
+        }
     }
 }

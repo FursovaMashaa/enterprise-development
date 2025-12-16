@@ -35,8 +35,8 @@ public class RentalService : IRentalService
             throw new ArgumentException($"Renter with id {dto.RenterId} not found");
 
         var rental = _mapper.Map<Rental>(dto);
-        rental.Bike = bike;
-        rental.Renter = renter;
+        rental.BikeId = dto.BikeId;
+        rental.RenterId = dto.RenterId;
 
         var created = await _rentalRepository.Create(rental);
         return _mapper.Map<RentalDto>(created);
@@ -74,8 +74,8 @@ public class RentalService : IRentalService
             throw new ArgumentException($"Renter with id {dto.RenterId} not found");
 
         _mapper.Map(dto, rental);
-        rental.Bike = bike;
-        rental.Renter = renter;
+        rental.BikeId = dto.BikeId;
+        rental.RenterId = dto.RenterId;
 
         var updated = await _rentalRepository.Update(rental);
         return _mapper.Map<RentalDto>(updated);
@@ -84,7 +84,7 @@ public class RentalService : IRentalService
     public async Task<IList<RentalDto>> GetRentalsByRenterAsync(int renterId)
     {
         var rentals = await _rentalRepository.ReadAll();
-        var filtered = rentals.Where(r => r.Renter.Id == renterId).ToList(); 
+        var filtered = rentals.Where(r => r.RenterId == renterId).ToList();
         return _mapper.Map<List<RentalDto>>(filtered);
     }
 
@@ -109,7 +109,7 @@ public class RentalService : IRentalService
     public async Task<IList<RentalDto>> GetRentalsByBikeAsync(int bikeId)
     {
         var rentals = await _rentalRepository.ReadAll();
-        var filtered = rentals.Where(r => r.Bike.Id == bikeId).ToList(); 
+        var filtered = rentals.Where(r => r.BikeId == bikeId).ToList();
         return _mapper.Map<List<RentalDto>>(filtered);
     }
 }

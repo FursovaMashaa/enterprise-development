@@ -13,6 +13,6 @@ public class RentalsController : CrudControllerBase<RentalDto, RentalCreateUpdat
         ILogger<RentalsController> logger)
         : base(service, logger)
     {
-        // Пустое тело конструктора
+        
     }
 }

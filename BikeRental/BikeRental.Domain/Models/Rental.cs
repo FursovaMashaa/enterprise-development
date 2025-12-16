@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace BikeRental.Domain.Models;
 
 /// <summary>
@@ -23,12 +25,16 @@ public class Rental
     /// <summary>
     /// Reference to the rented bicycle
     /// </summary>
-    [NotMapped]
-    public required Bike Bike { get; set; }
+   [NotMapped]
+    public Bike? Bike { get; set; }
 
     /// <summary>
     /// Reference to the customer who rented the bicycle
     /// </summary>
     [NotMapped]
-    public required Renter Renter { get; set; }
+    public Renter? Renter { get; set; }
+
+    public required int BikeId { get; set; }
+
+    public required int RenterId { get; set; }
 }

@@ -4,70 +4,49 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BikeRental.Infrastructure.EfCore.Repository;
 
-public class BikeEfCoreRepository(BikeRentalDbContext context) : IRepository<Bike, int>
+public class BikeEfCoreRepository : IRepository<Bike, int>
 {
-    private readonly DbSet<Bike> _bikes = context.Bikes!;
+    private readonly BikeRentalDbContext _context;
+    private readonly DbSet<Bike> _bikes;
 
-    public async Task<Bike?> Create(Bike entity)
+    public BikeEfCoreRepository(BikeRentalDbContext context)
+    {
+        _context = context;
+        _bikes = context.Bikes!;
+    }
+
+    public async Task<Bike?> Read(int id)
+    {
+    return await _bikes.FirstOrDefaultAsync(e => e.Id == id);
+    }
+
+    public async Task<IList<Bike>> ReadAll()
+    {
+        return await _bikes.ToListAsync();
+    }
+
+    public async Task<Bike> Create(Bike entity)
     {
         var result = await _bikes.AddAsync(entity);
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
         return result.Entity;
     }
-
-    public async Task<bool> Delete(int id)
-    {
-        var entity = await _bikes
-            .Include(b => b.Model)
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-        if (entity == null)
-            return false;
-
-        _bikes.Remove(entity);
-        await context.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<Bike?> Read(int id) =>
-        await _bikes
-            .Include(b => b.Model)
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-    public async Task<IList<Bike>> ReadAll() =>
-        await _bikes
-            .Include(b => b.Model)
-            .ToListAsync();
 
     public async Task<Bike> Update(Bike entity)
     {
         _bikes.Update(entity);
-        await context.SaveChangesAsync();
-        return (await Read(entity.Id))!;
+        await _context.SaveChangesAsync();
+        return entity;
     }
 
-    Task<Bike> IRepository<Bike, int>.Create(Bike entity)
+    public async Task<bool> Delete(int id)
     {
-        throw new System.NotImplementedException();
-    }
+        var entity = await Read(id);
+        if (entity == null)
+            return false;
 
-    Task<bool> IRepository<Bike, int>.Delete(int id)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    Task<Bike?> IRepository<Bike, int>.Read(int id)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    Task<IList<Bike>> IRepository<Bike, int>.ReadAll()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    Task<Bike> IRepository<Bike, int>.Update(Bike entity)
-    {
-        throw new System.NotImplementedException();
+        _bikes.Remove(entity);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

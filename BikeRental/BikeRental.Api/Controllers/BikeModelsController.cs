@@ -6,14 +6,14 @@ using BikeRental.Application.Contracts.BikeModel;
 namespace BikeRental.Api.Controllers; 
 
 [ApiController]
-[Route("api/[controller]")]
-public class BikeModelControllers : CrudControllerBase<BikeModelDto, BikeModelCreateUpdateDto, int>
+[Route("api/BikeModels")] 
+public class BikeModelsControllers : CrudControllerBase<BikeModelDto, BikeModelCreateUpdateDto, int>
 {
     private readonly IBikeModelService _modelService; 
 
-    public BikeModelControllers(
+    public BikeModelsControllers(
         IBikeModelService modelService, 
-        ILogger<BikeModelControllers> logger)
+        ILogger<BikeModelsControllers> logger)
         : base(modelService, logger)
     {
         _modelService = modelService;

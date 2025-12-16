@@ -4,12 +4,28 @@ using MongoDB.EntityFrameworkCore.Extensions;
 
 namespace BikeRental.Infrastructure.EfCore;
 
-public class BikeRentalDbContext(DbContextOptions<BikeRentalDbContext> options) : DbContext(options)
+public class BikeRentalDbContext : DbContext
 {
+    public BikeRentalDbContext(DbContextOptions<BikeRentalDbContext> options) : base(options)
+    {
+        Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+    }
+
     public DbSet<BikeModel>? BikeModels { get; set; }
     public DbSet<Bike>? Bikes { get; set; }
     public DbSet<Renter>? Renters { get; set; }
     public DbSet<Rental>? Rentals { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseMongoDB("mongodb://localhost:27017", "bikerental");
+        }
+        
+        // Отключаем транзакции
+        optionsBuilder.EnableThreadSafetyChecks(false);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,7 +36,7 @@ public class BikeRentalDbContext(DbContextOptions<BikeRentalDbContext> options) 
             builder.HasKey(bm => bm.Id);
             builder.Property(bm => bm.Id)
                     .HasElementName("_id")
-                    .ValueGeneratedOnAdd();;
+                    .ValueGeneratedOnAdd();
 
             builder.Property(bm => bm.BikeType)
                     .IsRequired()
@@ -43,8 +59,7 @@ public class BikeRentalDbContext(DbContextOptions<BikeRentalDbContext> options) 
             
             builder.Property(bm => bm.PricePerHour)
                 .IsRequired()
-                .HasElementName("price_per_hour")
-                .HasPrecision(18, 2);
+                .HasElementName("price_per_hour");
         });
 
         modelBuilder.Entity<Bike>(builder =>
@@ -54,7 +69,7 @@ public class BikeRentalDbContext(DbContextOptions<BikeRentalDbContext> options) 
             builder.HasKey(b => b.Id);
             builder.Property(b => b.Id)
                 .HasElementName("_id")
-                .ValueGeneratedOnAdd();;
+                .ValueGeneratedOnAdd();
 
             builder.Property(b => b.SerialNumber)
                 .IsRequired()
@@ -65,9 +80,11 @@ public class BikeRentalDbContext(DbContextOptions<BikeRentalDbContext> options) 
                 .HasMaxLength(30)
                 .HasElementName("color");
 
-            builder.Property(b => b.Model)
+            builder.Property(b => b.ModelId)
                 .IsRequired()
                 .HasElementName("model_id");
+                
+            builder.Ignore(b => b.Model);
         });
 
         modelBuilder.Entity<Renter>(builder =>
@@ -116,15 +133,16 @@ public class BikeRentalDbContext(DbContextOptions<BikeRentalDbContext> options) 
                 .IsRequired()
                 .HasElementName("duration_hours");
             
-            builder.Property(r => r.Bike)
+            builder.Property(r => r.BikeId)
                 .IsRequired()
                 .HasElementName("bike_id");
             
-            builder.Property(r => r.Renter)
+            builder.Property(r => r.RenterId)
                 .IsRequired()
                 .HasElementName("renter_id");
+            
+            builder.Ignore(r => r.Bike);
+            builder.Ignore(r => r.Renter);
         });
     }
 }
-
-        

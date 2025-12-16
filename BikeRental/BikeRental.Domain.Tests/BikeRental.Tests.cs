@@ -16,13 +16,14 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
         var expectedSerialNumber2 = "SPT0052025";
 
         var sportBikes = seed.Bikes
-            .Where(b => b.Model.BikeType == BikeType.Sport)
+            .Where(b => seed.Models.FirstOrDefault(m => m.Id == b.ModelId)?.BikeType == BikeType.Sport)
             .ToList();
 
         Assert.Equal(expectedCount, sportBikes.Count);
         Assert.Contains(sportBikes, b => b.SerialNumber == expectedSerialNumber1);
         Assert.Contains(sportBikes, b => b.SerialNumber == expectedSerialNumber2);
-        Assert.All(sportBikes, bike => Assert.Equal(BikeType.Sport, bike.Model.BikeType));
+        Assert.All(sportBikes, bike => 
+            Assert.Equal(BikeType.Sport, seed.Models.First(m => m.Id == bike.ModelId).BikeType));
     }
 
     /// <summary>
@@ -42,11 +43,18 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
         };
 
         var revenueByModel = seed.Rentals
-            .GroupBy(r => r.Bike.Model.Id)
+            .Select(r => new 
+            {
+                Rental = r,
+                Model = seed.Models.FirstOrDefault(m => m.Id == 
+                    seed.Bikes.FirstOrDefault(b => b.Id == r.BikeId)?.ModelId)
+            })
+            .Where(x => x.Model != null)
+            .GroupBy(x => x.Model.Id)
             .Select(g => new
             {
                 ModelId = g.Key,
-                Revenue = g.Sum(r => r.DurationHours * r.Bike.Model.PricePerHour),
+                Revenue = g.Sum(x => x.Rental.DurationHours * x.Model.PricePerHour),
                 RentalCount = g.Count()
             })
             .OrderByDescending(x => x.Revenue)
@@ -55,10 +63,13 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
             .ToList();
 
         Assert.Equal(expectedTopCount, revenueByModel.Count);
-        Assert.Equal(
-            expectedRevenue,
-            revenueByModel.ToDictionary(r => r.ModelId, r => r.Revenue)
-        );
+        
+        var actualRevenue = revenueByModel.ToDictionary(r => r.ModelId, r => r.Revenue);
+        foreach (var expected in expectedRevenue)
+        {
+            Assert.Contains(expected.Key, actualRevenue.Keys);
+            Assert.Equal(expected.Value, actualRevenue[expected.Key], 0.01m);
+        }
     }
 
     /// <summary>
@@ -78,12 +89,19 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
         };
 
         var usageByModel = seed.Rentals
-            .GroupBy(r => r.Bike.Model)
+            .Select(r => new 
+            {
+                Rental = r,
+                Model = seed.Models.FirstOrDefault(m => m.Id == 
+                    seed.Bikes.FirstOrDefault(b => b.Id == r.BikeId)?.ModelId)
+            })
+            .Where(x => x.Model != null)
+            .GroupBy(x => x.Model.Id)
             .Select(g => new
             {
-                ModelId = g.Key.Id,
-                TotalRentalHours = g.Sum(r => r.DurationHours),
-                AverageRentalTime = g.Average(r => r.DurationHours)
+                ModelId = g.Key,
+                TotalRentalHours = g.Sum(x => x.Rental.DurationHours),
+                AverageRentalTime = g.Average(x => x.Rental.DurationHours)
             })
             .OrderByDescending(x => x.TotalRentalHours)
             .Take(expectedTopCount)
@@ -91,7 +109,12 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
 
         Assert.Equal(expectedTopCount, usageByModel.Count);
 
-        Assert.Equal(expectedTotalHours, usageByModel.ToDictionary(ubm => ubm.ModelId, ubm => ubm.TotalRentalHours));
+        var actualHours = usageByModel.ToDictionary(ubm => ubm.ModelId, ubm => ubm.TotalRentalHours);
+        foreach (var expected in expectedTotalHours)
+        {
+            Assert.Contains(expected.Key, actualHours.Keys);
+            Assert.Equal(expected.Value, actualHours[expected.Key]);
+        }
         Assert.All(usageByModel, ubm => Assert.True(ubm.AverageRentalTime > 0));
     }
 
@@ -129,8 +152,14 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
     public void MeasureCategoryUtilization(BikeType category, int expectedUtilization)
     {
         var actualHours = seed.Rentals
-            .Where(rent => rent.Bike.Model.BikeType == category)
-            .Sum(rent => rent.DurationHours);
+            .Select(r => new 
+            {
+                Rental = r,
+                Model = seed.Models.FirstOrDefault(m => m.Id == 
+                    seed.Bikes.FirstOrDefault(b => b.Id == r.BikeId)?.ModelId)
+            })
+            .Where(x => x.Model?.BikeType == category)
+            .Sum(x => x.Rental.DurationHours);
 
         Assert.Equal(expectedUtilization, actualHours);
     }
@@ -145,14 +174,15 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
         var expectedLoyalCustomersCount = 5;
 
         var customerActivity = seed.Rentals
-            .GroupBy(r => r.Renter)
+            .GroupBy(r => r.RenterId)
             .Select(g => new
             {
-                Customer = g.Key,
+                Customer = seed.Renters.FirstOrDefault(r => r.Id == g.Key),
                 RentalFrequency = g.Count(),
                 TotalRentalHours = g.Sum(r => r.DurationHours),
                 CustomerSince = g.Min(r => r.StartTime)
             })
+            .Where(x => x.Customer != null)
             .OrderByDescending(x => x.RentalFrequency)
             .ThenByDescending(x => x.TotalRentalHours)
             .ToList();

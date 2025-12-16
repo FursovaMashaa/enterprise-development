@@ -171,13 +171,15 @@ public class DataSeeder
                 Id = 1,
                 SerialNumber = "MTN0012024",
                 Color = "Forest Green",
-                Model = Models[0]
+                ModelId = 1, // Храним только ID модели
+                Model = Models[0] // Навигационное свойство (будет проигнорировано в БД)
             },
             new()
             {
                 Id = 2,
                 SerialNumber = "RD0022024",
                 Color = "Racing Red",
+                ModelId = 2,
                 Model = Models[1]
             },
             new()
@@ -185,6 +187,7 @@ public class DataSeeder
                 Id = 3,
                 SerialNumber = "CTY0032023",
                 Color = "Sky Blue",
+                ModelId = 3,
                 Model = Models[2]
             },
             new()
@@ -192,6 +195,7 @@ public class DataSeeder
                 Id = 4,
                 SerialNumber = "HYB0042024",
                 Color = "Matte Black",
+                ModelId = 4,
                 Model = Models[3]
             },
             new()
@@ -199,6 +203,7 @@ public class DataSeeder
                 Id = 5,
                 SerialNumber = "SPT0052025",
                 Color = "Carbon Gray",
+                ModelId = 5,
                 Model = Models[4]
             },
             new()
@@ -206,6 +211,7 @@ public class DataSeeder
                 Id = 6,
                 SerialNumber = "MTN0062023",
                 Color = "Orange",
+                ModelId = 6,
                 Model = Models[5]
             },
             new()
@@ -213,6 +219,7 @@ public class DataSeeder
                 Id = 7,
                 SerialNumber = "RD0072024",
                 Color = "Yellow",
+                ModelId = 7,
                 Model = Models[6]
             },
             new()
@@ -220,6 +227,7 @@ public class DataSeeder
                 Id = 8,
                 SerialNumber = "CTY0082023",
                 Color = "White",
+                ModelId = 8,
                 Model = Models[7]
             },
             new()
@@ -227,6 +235,7 @@ public class DataSeeder
                 Id = 9,
                 SerialNumber = "HYB0092025",
                 Color = "Purple",
+                ModelId = 9,
                 Model = Models[8]
             },
             new()
@@ -234,6 +243,7 @@ public class DataSeeder
                 Id = 10,
                 SerialNumber = "SPT0102022",
                 Color = "Blue",
+                ModelId = 10,
                 Model = Models[9]
             }
         ];
@@ -341,14 +351,18 @@ public class DataSeeder
                 Id = 1,
                 StartTime = new DateTime(2024, 1, 10, 9, 0, 0),
                 DurationHours = 3,
-                Bike = Bikes[0],
-                Renter = Renters[0]
+                BikeId = 1, // Храним только ID велосипеда
+                RenterId = 1, // Храним только ID арендатора
+                Bike = Bikes[0], // Навигационное свойство
+                Renter = Renters[0] // Навигационное свойство
             },
             new()
             {
                 Id = 2,
                 StartTime = new DateTime(2024, 1, 12, 14, 30, 0),
                 DurationHours = 2,
+                BikeId = 2,
+                RenterId = 2,
                 Bike = Bikes[1],
                 Renter = Renters[1]
             },
@@ -357,6 +371,8 @@ public class DataSeeder
                 Id = 3,
                 StartTime = new DateTime(2024, 1, 15, 10, 0, 0),
                 DurationHours = 5,
+                BikeId = 3,
+                RenterId = 3,
                 Bike = Bikes[2],
                 Renter = Renters[2]
             },
@@ -365,6 +381,8 @@ public class DataSeeder
                 Id = 4,
                 StartTime = new DateTime(2024, 1, 18, 16, 45, 0),
                 DurationHours = 1,
+                BikeId = 4,
+                RenterId = 4,
                 Bike = Bikes[3],
                 Renter = Renters[3]
             },
@@ -373,6 +391,8 @@ public class DataSeeder
                 Id = 5,
                 StartTime = new DateTime(2024, 1, 20, 11, 0, 0),
                 DurationHours = 4,
+                BikeId = 5,
+                RenterId = 5,
                 Bike = Bikes[4],
                 Renter = Renters[4]
             },
@@ -381,6 +401,8 @@ public class DataSeeder
                 Id = 6,
                 StartTime = new DateTime(2024, 1, 22, 13, 15, 0),
                 DurationHours = 2,
+                BikeId = 1,
+                RenterId = 2,
                 Bike = Bikes[0],
                 Renter = Renters[1]
             },
@@ -389,6 +411,8 @@ public class DataSeeder
                 Id = 7,
                 StartTime = new DateTime(2024, 1, 25, 15, 30, 0),
                 DurationHours = 3,
+                BikeId = 2,
+                RenterId = 3,
                 Bike = Bikes[1],
                 Renter = Renters[2]
             },
@@ -397,6 +421,8 @@ public class DataSeeder
                 Id = 8,
                 StartTime = new DateTime(2024, 1, 28, 8, 45, 0),
                 DurationHours = 6,
+                BikeId = 3,
+                RenterId = 1,
                 Bike = Bikes[2],
                 Renter = Renters[0]
             },
@@ -405,6 +431,8 @@ public class DataSeeder
                 Id = 9,
                 StartTime = new DateTime(2024, 2, 1, 12, 0, 0),
                 DurationHours = 2,
+                BikeId = 4,
+                RenterId = 4,
                 Bike = Bikes[3],
                 Renter = Renters[3]
             },
@@ -413,6 +441,8 @@ public class DataSeeder
                 Id = 10,
                 StartTime = new DateTime(2024, 2, 3, 17, 20, 0),
                 DurationHours = 1,
+                BikeId = 5,
+                RenterId = 5,
                 Bike = Bikes[4],
                 Renter = Renters[4]
             },
@@ -421,6 +451,8 @@ public class DataSeeder
                 Id = 11,
                 StartTime = new DateTime(2024, 2, 5, 10, 30, 0),
                 DurationHours = 4,
+                BikeId = 6,
+                RenterId = 6,
                 Bike = Bikes[5],
                 Renter = Renters[5]
             },
@@ -429,6 +461,8 @@ public class DataSeeder
                 Id = 12,
                 StartTime = new DateTime(2024, 2, 8, 14, 0, 0),
                 DurationHours = 3,
+                BikeId = 7,
+                RenterId = 7,
                 Bike = Bikes[6],
                 Renter = Renters[6]
             },
@@ -437,6 +471,8 @@ public class DataSeeder
                 Id = 13,
                 StartTime = new DateTime(2024, 2, 12, 11, 15, 0),
                 DurationHours = 2,
+                BikeId = 8,
+                RenterId = 8,
                 Bike = Bikes[7],
                 Renter = Renters[7]
             },
@@ -445,6 +481,8 @@ public class DataSeeder
                 Id = 14,
                 StartTime = new DateTime(2024, 2, 15, 16, 45, 0),
                 DurationHours = 5,
+                BikeId = 9,
+                RenterId = 9,
                 Bike = Bikes[8],
                 Renter = Renters[8]
             },
@@ -453,6 +491,8 @@ public class DataSeeder
                 Id = 15,
                 StartTime = new DateTime(2024, 2, 18, 9, 30, 0),
                 DurationHours = 1,
+                BikeId = 10,
+                RenterId = 10,
                 Bike = Bikes[9],
                 Renter = Renters[9]
             },
@@ -461,6 +501,8 @@ public class DataSeeder
                 Id = 16,
                 StartTime = new DateTime(2024, 2, 20, 13, 0, 0),
                 DurationHours = 3,
+                BikeId = 6,
+                RenterId = 1,
                 Bike = Bikes[5],
                 Renter = Renters[0]
             },
@@ -469,6 +511,8 @@ public class DataSeeder
                 Id = 17,
                 StartTime = new DateTime(2024, 2, 22, 15, 20, 0),
                 DurationHours = 2,
+                BikeId = 7,
+                RenterId = 2,
                 Bike = Bikes[6],
                 Renter = Renters[1]
             },
@@ -477,6 +521,8 @@ public class DataSeeder
                 Id = 18,
                 StartTime = new DateTime(2024, 2, 25, 10, 45, 0),
                 DurationHours = 4,
+                BikeId = 8,
+                RenterId = 3,
                 Bike = Bikes[7],
                 Renter = Renters[2]
             },
@@ -485,6 +531,8 @@ public class DataSeeder
                 Id = 19,
                 StartTime = new DateTime(2024, 2, 28, 17, 30, 0),
                 DurationHours = 1,
+                BikeId = 9,
+                RenterId = 4,
                 Bike = Bikes[8],
                 Renter = Renters[3]
             },
@@ -493,6 +541,8 @@ public class DataSeeder
                 Id = 20,
                 StartTime = new DateTime(2024, 3, 2, 12, 15, 0),
                 DurationHours = 6,
+                BikeId = 10,
+                RenterId = 5,
                 Bike = Bikes[9],
                 Renter = Renters[4]
             }

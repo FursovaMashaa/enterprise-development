@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace BikeRental.Domain.Models;
 
 /// <summary>

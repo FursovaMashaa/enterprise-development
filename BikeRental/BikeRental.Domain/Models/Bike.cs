@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 namespace BikeRental.Domain.Models;
 
 /// <summary>
@@ -23,6 +24,8 @@ public class Bike
     /// <summary>
     /// Reference to the bicycle model specifications
     /// </summary>
+    public required int ModelId { get; set; }
+
     [NotMapped]
-    public required BikeModel Model { get; set; }
+    public BikeModel? Model { get; set; }
 }
