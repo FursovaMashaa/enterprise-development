@@ -16,7 +16,7 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
         var expectedSerialNumber2 = "SPT0052025";
 
         var sportBikes = seed.Bikes
-            .Where(b => seed.Models.FirstOrDefault(m => m.Id == b.ModelId)?.BikeType == BikeType.Sport)
+            .Where(b => seed.Models.First(m => m.Id == b.ModelId).BikeType == BikeType.Sport)
             .ToList();
 
         Assert.Equal(expectedCount, sportBikes.Count);
@@ -46,10 +46,9 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
             .Select(r => new 
             {
                 Rental = r,
-                Model = seed.Models.FirstOrDefault(m => m.Id == 
-                    seed.Bikes.FirstOrDefault(b => b.Id == r.BikeId)?.ModelId)
+                Bike = seed.Bikes.First(b => b.Id == r.BikeId),
+                Model = seed.Models.First(m => m.Id == seed.Bikes.First(b => b.Id == r.BikeId).ModelId)
             })
-            .Where(x => x.Model != null)
             .GroupBy(x => x.Model.Id)
             .Select(g => new
             {
@@ -68,7 +67,7 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
         foreach (var expected in expectedRevenue)
         {
             Assert.Contains(expected.Key, actualRevenue.Keys);
-            Assert.Equal(expected.Value, actualRevenue[expected.Key], 0.01m);
+            Assert.Equal(expected.Value, actualRevenue[expected.Key]);
         }
     }
 
@@ -92,11 +91,9 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
             .Select(r => new 
             {
                 Rental = r,
-                Model = seed.Models.FirstOrDefault(m => m.Id == 
-                    seed.Bikes.FirstOrDefault(b => b.Id == r.BikeId)?.ModelId)
+                Bike = seed.Bikes.First(b => b.Id == r.BikeId)
             })
-            .Where(x => x.Model != null)
-            .GroupBy(x => x.Model.Id)
+            .GroupBy(x => x.Bike.ModelId)
             .Select(g => new
             {
                 ModelId = g.Key,
@@ -138,9 +135,9 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
 
         Assert.Equal(expectedMinRental, minRental);
         Assert.Equal(expectedMaxRental, maxRental);
-        Assert.Equal(expectedAvgRental, avgRental, 0.01);
+        Assert.Equal(expectedAvgRental, avgRental);
     }
-
+    
     /// <summary>
     /// Measures total utilization hours for each bicycle category in the rental fleet
     /// </summary>
@@ -155,18 +152,15 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
             .Select(r => new 
             {
                 Rental = r,
-                Model = seed.Models.FirstOrDefault(m => m.Id == 
-                    seed.Bikes.FirstOrDefault(b => b.Id == r.BikeId)?.ModelId)
+                Bike = seed.Bikes.First(b => b.Id == r.BikeId),
+                Model = seed.Models.First(m => m.Id == seed.Bikes.First(b => b.Id == r.BikeId).ModelId)
             })
-            .Where(x => x.Model?.BikeType == category)
+            .Where(x => x.Model.BikeType == category)
             .Sum(x => x.Rental.DurationHours);
 
         Assert.Equal(expectedUtilization, actualHours);
     }
 
-    /// <summary>
-    /// Identifies most frequent customers based on rental transaction volume
-    /// </summary>
     [Fact(DisplayName = "Customer Loyalty Analysis")]
     public void IdentifyFrequentCustomers()
     {
@@ -177,12 +171,11 @@ public class BikeRentalTests(BikeRental.Domain.DataSeeder.DataSeeder seed) : ICl
             .GroupBy(r => r.RenterId)
             .Select(g => new
             {
-                Customer = seed.Renters.FirstOrDefault(r => r.Id == g.Key),
+                Customer = seed.Renters.First(r => r.Id == g.Key),
                 RentalFrequency = g.Count(),
                 TotalRentalHours = g.Sum(r => r.DurationHours),
                 CustomerSince = g.Min(r => r.StartTime)
             })
-            .Where(x => x.Customer != null)
             .OrderByDescending(x => x.RentalFrequency)
             .ThenByDescending(x => x.TotalRentalHours)
             .ToList();
