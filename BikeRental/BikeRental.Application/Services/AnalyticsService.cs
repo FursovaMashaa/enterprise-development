@@ -59,7 +59,7 @@ public class AnalyticsService : IAnalyticsService
             
         var sportBikes = bikes
             .Where(b => sportModelIds.Contains(b.ModelId))
-            .ToList();
+            .ToList(); 
             
         return _mapper.Map<List<BikeDto>>(sportBikes);
     }
@@ -82,7 +82,7 @@ public class AnalyticsService : IAnalyticsService
                 Model = models.FirstOrDefault(m => m.Id == bikes.FirstOrDefault(b => b.Id == r.BikeId)?.ModelId)
             })
             .Where(x => x.Model != null)
-            .GroupBy(x => x.Model.Id)
+            .GroupBy(x => x.Model.Id)  
             .Select(g => new
             {
                 ModelId = g.Key, 

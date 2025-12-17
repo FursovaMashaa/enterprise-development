@@ -114,7 +114,7 @@ public class BikeService : IBikeService
     public async Task<IList<BikeDto>> GetBikesByModelAsync(int modelId) 
     {
         var bikes = await _bikeRepository.ReadAll();
-        var filtered = bikes.Where(b => b.Model.Id == modelId).ToList(); 
+        var filtered = bikes.Where(b => b.Model?.Id == modelId).ToList(); 
         return _mapper.Map<List<BikeDto>>(filtered);
     }
 }

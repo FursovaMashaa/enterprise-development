@@ -101,7 +101,7 @@ public class RenterService : IRenterService
     public async Task<IList<RentalDto>> GetRenterRentalsAsync(int renterId)
     {
         var rents = await _rentRepository.ReadAll();
-        var filtered = rents.Where(r => r.Renter.Id == renterId).ToList();
+        var filtered = rents.Where(r => r.Renter?.Id == renterId).ToList();
         return _mapper.Map<List<RentalDto>>(filtered);
     }
 
@@ -113,6 +113,6 @@ public class RenterService : IRenterService
     public async Task<int> GetRenterRentalAsync(int renterId)
     {
         var rents = await _rentRepository.ReadAll();
-        return rents.Count(r => r.Renter.Id == renterId);
+        return rents.Count(r => r.Renter?.Id == renterId);
     }
 }

@@ -52,7 +52,7 @@ builder.Services.AddSwaggerGen();
 
 // MongoDB client configuration
 builder.Services.AddSingleton<IMongoClient>(sp => 
-    new MongoClient("mongodb://localhost:5066"));
+    new MongoClient("mongodb://localhost:27017"));
 
 // Entity Framework Core DbContext configuration with MongoDB provider
 builder.Services.AddDbContext<BikeRentalDbContext>((services, options) =>
