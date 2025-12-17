@@ -6,6 +6,10 @@ using BikeRental.Application.Contracts.Renter;
 
 namespace BikeRental.Api.Controllers;
 
+/// <summary>
+/// Controller for bike rental analytics.
+/// Provides API endpoints for obtaining statistical data and analytical reports.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class AnalyticsController : ControllerBase
@@ -13,6 +17,11 @@ public class AnalyticsController : ControllerBase
     private readonly ILogger<AnalyticsController> _logger;
     private readonly IAnalyticsService _analyticsService;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AnalyticsController"/> class
+    /// </summary>
+    /// <param name="analyticsService">Analytics service</param>
+    /// <param name="logger">Logger</param>
     public AnalyticsController(
         IAnalyticsService analyticsService,
         ILogger<AnalyticsController> logger)
@@ -21,6 +30,12 @@ public class AnalyticsController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>
+    /// Retrieves a list of all sport bikes available for rental
+    /// </summary>
+    /// <returns>List of sport bikes</returns>
+    /// <response code="200">Success</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("sport-bikes")]
     public async Task<ActionResult<IList<BikeDto>>> GetSportBikes()
     {
@@ -36,6 +51,12 @@ public class AnalyticsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Retrieves the top 5 bike models by total rental revenue
+    /// </summary>
+    /// <returns>List of models with total revenue</returns>
+    /// <response code="200">Success</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("top-models-revenue")]
     public async Task<ActionResult<IList<KeyValuePair<int, decimal>>>> GetTopModelsByRevenue()
     {
@@ -51,6 +72,12 @@ public class AnalyticsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Retrieves the top 5 bike models by total rental duration
+    /// </summary>
+    /// <returns>List of models with total rental hours</returns>
+    /// <response code="200">Success</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("top-models-duration")]
     public async Task<ActionResult<IList<KeyValuePair<int, int>>>> GetTopModelsByDuration()
     {
@@ -66,6 +93,12 @@ public class AnalyticsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Retrieves rental duration statistics (minimum, maximum, and average)
+    /// </summary>
+    /// <returns>Object containing min, max, and average rental durations</returns>
+    /// <response code="200">Success</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("rental-stats")]
     public async Task<ActionResult<object>> GetRentalStats()
     {
@@ -86,6 +119,13 @@ public class AnalyticsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Retrieves total rental hours for a specific bike category
+    /// </summary>
+    /// <param name="type">Bike type identifier (0: Sport, 1: Mountain, 2: Road, 3: Hybrid)</param>
+    /// <returns>Total rental hours for the specified category</returns>
+    /// <response code="200">Success</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("category-utilization/{type}")]
     public async Task<ActionResult<int>> GetCategoryUtilization(int type)
     {
@@ -101,6 +141,12 @@ public class AnalyticsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Retrieves top clients by number of rental transactions
+    /// </summary>
+    /// <returns>List of top clients with their rental counts</returns>
+    /// <response code="200">Success</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("top-clients")]
     public async Task<ActionResult<IList<KeyValuePair<RenterDto, int>>>> GetTopClients()
     {

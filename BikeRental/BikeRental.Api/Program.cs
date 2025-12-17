@@ -17,40 +17,44 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add default service configurations
 builder.AddServiceDefaults();
 
-// AutoMapper
+// AutoMapper configuration for DTO mappings
 builder.Services.AddAutoMapper(config => config.AddProfile<BikeRentalProfile>());
 
-// Сидер данных
+// Data seeder for initial test data
 builder.Services.AddSingleton<DataSeeder>();
 
-// Репозитории
+// Entity Framework Core repositories registration
 builder.Services.AddScoped<IRepository<Bike, int>, BikeEfCoreRepository>();
 builder.Services.AddScoped<IRepository<BikeModel, int>, BikeModelEfCoreRepository>();
 builder.Services.AddScoped<IRepository<Renter, int>, RenterEfCoreRepository>();
 builder.Services.AddScoped<IRepository<Rental, int>, RentalEfCoreRepository>();
 
-// Сервисы
+// Application services registration
 builder.Services.AddScoped<IBikeService, BikeService>();
 builder.Services.AddScoped<IBikeModelService, BikeModelService>();
 builder.Services.AddScoped<IRenterService, RenterService>();
 builder.Services.AddScoped<IRentalService, RentalService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
+// Controller configuration with JSON serialization options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// Swagger
+// Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// MongoDB client configuration
 builder.Services.AddSingleton<IMongoClient>(sp => 
-    new MongoClient("mongodb://localhost:27017"));
+    new MongoClient("mongodb://localhost:5066"));
 
+// Entity Framework Core DbContext configuration with MongoDB provider
 builder.Services.AddDbContext<BikeRentalDbContext>((services, options) =>
 {
     var mongoClient = services.GetRequiredService<IMongoClient>();
@@ -59,9 +63,10 @@ builder.Services.AddDbContext<BikeRentalDbContext>((services, options) =>
 
 var app = builder.Build();
 
+// Map default endpoints for service health checks
 app.MapDefaultEndpoints();
 
-// Автоматическое заполнение БД - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// Database initialization and data seeding
 try
 {
     using (var scope = app.Services.CreateScope())
@@ -69,10 +74,10 @@ try
         var context = scope.ServiceProvider.GetRequiredService<BikeRentalDbContext>();
         var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
 
-        // Создадим базу данных и коллекции если их нет
+        // Ensure database is created
         context.Database.EnsureCreated();
 
-        // Проверяем, есть ли данные в BikeModels (можно любую коллекцию)
+        // Check if database already contains data
         if (!context.BikeModels!.Any())
         {
             var models = seeder.Models;
@@ -80,32 +85,35 @@ try
             var bikes = seeder.Bikes;
             var rentals = seeder.Rentals;
 
+            // Seed database with test data
             context.BikeModels!.AddRange(models);
             context.Renters!.AddRange(renters);
             context.Bikes!.AddRange(bikes);
             context.Rentals!.AddRange(rentals);
 
             context.SaveChanges();
-            Console.WriteLine("База данных заполнена тестовыми данными!");
+            Console.WriteLine("Database seeded with test data!");
         }
         else
         {
-            Console.WriteLine("База данных уже содержит данные.");
+            Console.WriteLine("Database already contains data.");
         }
     }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Ошибка при заполнении БД: {ex.Message}");
+    Console.WriteLine($"Error during database seeding: {ex.Message}");
     Console.WriteLine($"StackTrace: {ex.StackTrace}");
 }
 
+// Configure Swagger UI in development environment
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Configure middleware pipeline
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

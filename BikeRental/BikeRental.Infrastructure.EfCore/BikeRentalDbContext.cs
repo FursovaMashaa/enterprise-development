@@ -4,18 +4,45 @@ using MongoDB.EntityFrameworkCore.Extensions;
 
 namespace BikeRental.Infrastructure.EfCore;
 
+/// <summary>
+/// Entity Framework Core database context for the bike rental system using MongoDB as the backing store.
+/// Configures entity mappings, relationships, and MongoDB-specific settings for all domain entities.
+/// </summary>
 public class BikeRentalDbContext : DbContext
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BikeRentalDbContext"/> class
+    /// </summary>
+    /// <param name="options">DbContext options for configuration</param>
     public BikeRentalDbContext(DbContextOptions<BikeRentalDbContext> options) : base(options)
     {
         Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
     }
 
+    /// <summary>
+    /// Gets or sets the bike models collection in the database
+    /// </summary>
     public DbSet<BikeModel>? BikeModels { get; set; }
+
+    /// <summary>
+    /// Gets or sets the bikes collection in the database
+    /// </summary>
     public DbSet<Bike>? Bikes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the renters collection in the database
+    /// </summary>
     public DbSet<Renter>? Renters { get; set; }
+
+    /// <summary>
+    /// Gets or sets the rentals collection in the database
+    /// </summary>
     public DbSet<Rental>? Rentals { get; set; }
 
+    /// <summary>
+    /// Configures the database provider and connection settings for the context
+    /// </summary>
+    /// <param name="optionsBuilder">Options builder for configuring DbContext options</param>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -23,10 +50,13 @@ public class BikeRentalDbContext : DbContext
             optionsBuilder.UseMongoDB("mongodb://localhost:27017", "bikerental");
         }
         
-        // Отключаем транзакции
         optionsBuilder.EnableThreadSafetyChecks(false);
     }
 
+    /// <summary>
+    /// Configures the entity mappings and MongoDB-specific configurations for all domain entities
+    /// </summary>
+    /// <param name="modelBuilder">Model builder for configuring entity mappings</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BikeModel>(builder =>
@@ -84,7 +114,7 @@ public class BikeRentalDbContext : DbContext
                 .IsRequired()
                 .HasElementName("model_id");
                 
-            builder.Ignore(b => b.Model);
+            builder.Ignore(b => b.Model); 
         });
 
         modelBuilder.Entity<Renter>(builder =>
@@ -116,6 +146,7 @@ public class BikeRentalDbContext : DbContext
                 .HasElementName("phone_number");
         });
 
+        // Configure Rental entity mapping
         modelBuilder.Entity<Rental>(builder =>
         {
             builder.ToCollection("rentals");
@@ -141,8 +172,8 @@ public class BikeRentalDbContext : DbContext
                 .IsRequired()
                 .HasElementName("renter_id");
             
-            builder.Ignore(r => r.Bike);
-            builder.Ignore(r => r.Renter);
+            builder.Ignore(r => r.Bike);   
+            builder.Ignore(r => r.Renter); 
         });
     }
 }

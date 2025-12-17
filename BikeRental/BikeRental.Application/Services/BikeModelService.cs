@@ -7,12 +7,22 @@ using BikeRental.Domain.Models;
 
 namespace BikeRental.Application.Services;
 
+/// <summary>
+/// Service implementation for managing bike models in the rental system.
+/// Provides CRUD operations and specialized queries for bike model entities.
+/// </summary>
 public class BikeModelService : IBikeModelService
 {
     private readonly IRepository<BikeModel, int> _modelRepository;
     private readonly IRepository<Bike, int> _bikeRepository; 
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BikeModelService"/> class
+    /// </summary>
+    /// <param name="modelRepository">Repository for bike model entities</param>
+    /// <param name="bikeRepository">Repository for bike entities</param>
+    /// <param name="mapper">AutoMapper instance for object mapping</param>
     public BikeModelService(
         IRepository<BikeModel, int> modelRepository,
         IRepository<Bike, int> bikeRepository, 
@@ -23,6 +33,11 @@ public class BikeModelService : IBikeModelService
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Creates a new bike model
+    /// </summary>
+    /// <param name="dto">Data for creating the bike model</param>
+    /// <returns>The created bike model DTO</returns>
     public async Task<BikeModelDto> Create(BikeModelCreateUpdateDto dto)
     {
         var model = _mapper.Map<BikeModel>(dto);
@@ -30,23 +45,44 @@ public class BikeModelService : IBikeModelService
         return _mapper.Map<BikeModelDto>(created);
     }
 
+    /// <summary>
+    /// Deletes a bike model by its identifier
+    /// </summary>
+    /// <param name="id">Bike model identifier</param>
+    /// <returns>True if deletion was successful, false otherwise</returns>
     public async Task<bool> Delete(int id) 
     {
         return await _modelRepository.Delete(id);
     }
 
+    /// <summary>
+    /// Retrieves a specific bike model by its identifier
+    /// </summary>
+    /// <param name="id">Bike model identifier</param>
+    /// <returns>The bike model DTO or null if not found</returns>
     public async Task<BikeModelDto?> Get(int id) 
     {
         var model = await _modelRepository.Read(id);
         return model != null ? _mapper.Map<BikeModelDto>(model) : null;
     }
 
+    /// <summary>
+    /// Retrieves all bike models
+    /// </summary>
+    /// <returns>List of all bike model DTOs</returns>
     public async Task<IList<BikeModelDto>> GetAll()
     {
         var models = await _modelRepository.ReadAll();
         return _mapper.Map<List<BikeModelDto>>(models);
     }
 
+    /// <summary>
+    /// Updates an existing bike model
+    /// </summary>
+    /// <param name="dto">Updated data for the bike model</param>
+    /// <param name="id">Identifier of the bike model to update</param>
+    /// <returns>The updated bike model DTO</returns>
+    /// <exception cref="KeyNotFoundException">Thrown when the bike model is not found</exception>
     public async Task<BikeModelDto> Update(BikeModelCreateUpdateDto dto, int id) 
     {
         var model = await _modelRepository.Read(id);
@@ -58,6 +94,11 @@ public class BikeModelService : IBikeModelService
         return _mapper.Map<BikeModelDto>(updated);
     }
 
+    /// <summary>
+    /// Retrieves bike models filtered by bike type
+    /// </summary>
+    /// <param name="bikeType">Type of bike to filter by</param>
+    /// <returns>List of bike model DTOs of the specified type</returns>
     public async Task<IList<BikeModelDto>> GetModelsByTypeAsync(BikeType bikeType)
     {
         var models = await _modelRepository.ReadAll();
@@ -65,6 +106,11 @@ public class BikeModelService : IBikeModelService
         return _mapper.Map<List<BikeModelDto>>(filtered);
     }
 
+    /// <summary>
+    /// Retrieves bike models filtered by model year
+    /// </summary>
+    /// <param name="modelYear">Year to filter by (null returns all models)</param>
+    /// <returns>List of bike model DTOs from the specified year</returns>
     public async Task<IList<BikeModelDto>> GetModelsByYearAsync(int? modelYear) 
     {
         var models = await _modelRepository.ReadAll();
@@ -72,6 +118,11 @@ public class BikeModelService : IBikeModelService
         return _mapper.Map<List<BikeModelDto>>(filtered);
     }
 
+    /// <summary>
+    /// Retrieves all bikes belonging to a specific model
+    /// </summary>
+    /// <param name="modelId">Bike model identifier</param>
+    /// <returns>List of bike DTOs belonging to the specified model</returns>
     public async Task<IList<BikeDto>> GetBikesAsync(int modelId) 
     {
         var bikes = await _bikeRepository.ReadAll();

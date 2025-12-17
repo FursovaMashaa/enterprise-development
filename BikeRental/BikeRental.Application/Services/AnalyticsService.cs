@@ -8,6 +8,10 @@ using BikeRental.Domain.Models;
 
 namespace BikeRental.Application.Services;
 
+/// <summary>
+/// Service implementation for analytics and reporting operations in the bike rental system.
+/// Provides methods for generating business intelligence reports and statistical analysis.
+/// </summary>
 public class AnalyticsService : IAnalyticsService
 {
     private readonly IRepository<Bike, int> _bikeRepository;     
@@ -16,6 +20,14 @@ public class AnalyticsService : IAnalyticsService
     private readonly IRepository<Renter, int> _renterRepository;
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AnalyticsService"/> class
+    /// </summary>
+    /// <param name="bikeRepository">Repository for bike entities</param>
+    /// <param name="rentalRepository">Repository for rental transactions</param>
+    /// <param name="modelRepository">Repository for bike models</param>
+    /// <param name="renterRepository">Repository for renter entities</param>
+    /// <param name="mapper">AutoMapper instance for object mapping</param>
     public AnalyticsService(
         IRepository<Bike, int> bikeRepository,      
         IRepository<Rental, int> rentalRepository,
@@ -30,12 +42,16 @@ public class AnalyticsService : IAnalyticsService
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Retrieves all sport-type bikes from the inventory
+    /// </summary>
+    /// <returns>List of sport bike DTOs</returns>
     public async Task<IList<BikeDto>> GetAllSportBikesAsync()
     {
         var bikes = await _bikeRepository.ReadAll();
         var models = await _modelRepository.ReadAll();
         
-        // Находим ID спортивных моделей
+        // Find sport model IDs
         var sportModelIds = models
             .Where(m => m.BikeType == BikeType.Sport)
             .Select(m => m.Id)
@@ -48,6 +64,10 @@ public class AnalyticsService : IAnalyticsService
         return _mapper.Map<List<BikeDto>>(sportBikes);
     }
 
+    /// <summary>
+    /// Calculates the top 5 bike models by total rental revenue
+    /// </summary>
+    /// <returns>List of model ID and revenue pairs, sorted by revenue descending</returns>
     public async Task<IList<KeyValuePair<int, decimal>>> GetTopFiveModelsByRevenueAsync()
     {
         var rentals = await _rentalRepository.ReadAll();
@@ -77,6 +97,10 @@ public class AnalyticsService : IAnalyticsService
         return result;
     }
 
+    /// <summary>
+    /// Calculates the top 5 bike models by total rental duration
+    /// </summary>
+    /// <returns>List of model ID and total hours pairs, sorted by hours descending</returns>
     public async Task<IList<KeyValuePair<int, int>>> GetTopFiveModelsByTotalDurationAsync()
     {
         var rentals = await _rentalRepository.ReadAll();
@@ -100,6 +124,10 @@ public class AnalyticsService : IAnalyticsService
             .ToList();
     }
 
+    /// <summary>
+    /// Calculates minimum, maximum, and average rental durations
+    /// </summary>
+    /// <returns>Tuple containing min, max, and average rental hours</returns>
     public async Task<(int Min, int Max, double Avg)> GetMinMaxAvgRentDurationAsync()
     {
         var rentals = await _rentalRepository.ReadAll();
@@ -110,6 +138,11 @@ public class AnalyticsService : IAnalyticsService
         return (durations.Min(), durations.Max(), Math.Round(durations.Average(), 2));
     }
 
+    /// <summary>
+    /// Calculates total rental hours for a specific bike category
+    /// </summary>
+    /// <param name="type">Bike type identifier (as integer corresponding to BikeType enum)</param>
+    /// <returns>Total rental hours for the specified bike category</returns>
     public async Task<int> GetTotalRentalTimeByTypeAsync(int type)
     {
         var bikeType = (BikeType)type;
@@ -117,24 +150,28 @@ public class AnalyticsService : IAnalyticsService
         var bikes = await _bikeRepository.ReadAll();
         var models = await _modelRepository.ReadAll();
 
-        // Находим ID моделей нужного типа
+        // Find model IDs of the specified type
         var modelIds = models
             .Where(m => m.BikeType == bikeType)
             .Select(m => m.Id)
             .ToList();
 
-        // Находим велосипеды этих моделей
+        // Find bikes of those models
         var bikeIds = bikes
             .Where(b => modelIds.Contains(b.ModelId))
             .Select(b => b.Id)
             .ToList();
 
-        // Суммируем аренды этих велосипедов
+        // Sum rentals of those bikes
         return rentals
             .Where(r => bikeIds.Contains(r.BikeId))
             .Sum(r => r.DurationHours);
     }
 
+    /// <summary>
+    /// Identifies top clients based on rental frequency (clients with maximum rental count)
+    /// </summary>
+    /// <returns>List of renter DTOs and their rental counts for top-performing clients</returns>
     public async Task<IList<KeyValuePair<RenterDto, int>>> GetTopClientsByRentalCountAsync()
     {
         var rentals = await _rentalRepository.ReadAll();
