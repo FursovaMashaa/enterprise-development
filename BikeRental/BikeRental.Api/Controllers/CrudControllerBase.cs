@@ -13,23 +13,15 @@ namespace BikeRental.Api.Controllers;
 /// <typeparam name="TKey">Type of the entity's primary key</typeparam>
 [ApiController]
 [Route("api/[controller]")]
-public abstract class CrudControllerBase<TDto, TCreateUpdateDto, TKey> : ControllerBase
+public abstract class CrudControllerBase<TDto, TCreateUpdateDto, TKey>(
+    IApplicationService<TDto, TCreateUpdateDto, TKey> service,
+    ILogger logger
+) : ControllerBase
     where TDto : class
     where TCreateUpdateDto : class
 {
-    protected readonly ILogger _logger;
-    protected readonly IApplicationService<TDto, TCreateUpdateDto, TKey> _service;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CrudControllerBase{TDto, TCreateUpdateDto, TKey}"/> class
-    /// </summary>
-    /// <param name="service">Application service providing CRUD operations</param>
-    /// <param name="logger">Logger for tracking operations</param>
-    protected CrudControllerBase(IApplicationService<TDto, TCreateUpdateDto, TKey> service, ILogger logger)
-    {
-        _service = service;
-        _logger = logger;
-    }
+    protected readonly ILogger _logger = logger;
+    protected readonly IApplicationService<TDto, TCreateUpdateDto, TKey> _service = service;
 
     /// <summary>
     /// Retrieves all entities

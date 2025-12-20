@@ -12,35 +12,19 @@ namespace BikeRental.Application.Services;
 /// Service implementation for analytics and reporting operations in the bike rental system.
 /// Provides methods for generating business intelligence reports and statistical analysis.
 /// </summary>
-public class AnalyticsService : IAnalyticsService
+public class AnalyticsService(
+    IRepository<Bike, int> bikeRepository,      
+    IRepository<Rental, int> rentalRepository,
+    IRepository<BikeModel, int> modelRepository,
+    IRepository<Renter, int> renterRepository,
+    IMapper mapper
+) : IAnalyticsService
 {
-    private readonly IRepository<Bike, int> _bikeRepository;     
-    private readonly IRepository<Rental, int> _rentalRepository;
-    private readonly IRepository<BikeModel, int> _modelRepository;
-    private readonly IRepository<Renter, int> _renterRepository;
-    private readonly IMapper _mapper;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AnalyticsService"/> class
-    /// </summary>
-    /// <param name="bikeRepository">Repository for bike entities</param>
-    /// <param name="rentalRepository">Repository for rental transactions</param>
-    /// <param name="modelRepository">Repository for bike models</param>
-    /// <param name="renterRepository">Repository for renter entities</param>
-    /// <param name="mapper">AutoMapper instance for object mapping</param>
-    public AnalyticsService(
-        IRepository<Bike, int> bikeRepository,      
-        IRepository<Rental, int> rentalRepository,
-        IRepository<BikeModel, int> modelRepository,
-        IRepository<Renter, int> renterRepository,
-        IMapper mapper)
-    {
-        _bikeRepository = bikeRepository;
-        _rentalRepository = rentalRepository;
-        _modelRepository = modelRepository;
-        _renterRepository = renterRepository;
-        _mapper = mapper;
-    }
+    private readonly IRepository<Bike, int> _bikeRepository = bikeRepository;     
+    private readonly IRepository<Rental, int> _rentalRepository = rentalRepository;
+    private readonly IRepository<BikeModel, int> _modelRepository = modelRepository;
+    private readonly IRepository<Renter, int> _renterRepository = renterRepository;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Retrieves all sport-type bikes from the inventory

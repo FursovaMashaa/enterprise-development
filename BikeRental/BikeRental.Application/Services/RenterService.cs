@@ -10,28 +10,16 @@ namespace BikeRental.Application.Services;
 /// Service implementation for managing renter entities in the bike rental system.
 /// Provides CRUD operations and rental-related functionality for renters.
 /// </summary>
-public class RenterService : IRenterService
+public class RenterService(
+    IRepository<Renter, int> renterRepository, 
+    IRepository<Rental, int> rentRepository,  
+    IMapper mapper
+) : IRenterService
 {
-    private readonly IRepository<Renter, int> _renterRepository;
-    private readonly IRepository<Rental, int> _rentRepository;
-    private readonly IMapper _mapper;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RenterService"/> class
-    /// </summary>
-    /// <param name="renterRepository">Repository for renter entities</param>
-    /// <param name="rentRepository">Repository for rental entities</param>
-    /// <param name="mapper">AutoMapper instance for object mapping</param>
-    public RenterService(
-        IRepository<Renter, int> renterRepository, 
-        IRepository<Rental, int> rentRepository,  
-        IMapper mapper)
-    {
-        _renterRepository = renterRepository;
-        _rentRepository = rentRepository;
-        _mapper = mapper;
-    }
-
+    private readonly IRepository<Renter, int> _renterRepository = renterRepository;
+    private readonly IRepository<Rental, int> _rentRepository = rentRepository;
+    private readonly IMapper _mapper = mapper;
+    
     /// <summary>
     /// Creates a new renter
     /// </summary>

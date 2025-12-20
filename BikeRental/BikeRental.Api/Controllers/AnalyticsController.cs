@@ -12,23 +12,13 @@ namespace BikeRental.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class AnalyticsController : ControllerBase
+public class AnalyticsController(
+    IAnalyticsService analyticsService,
+    ILogger<AnalyticsController> logger
+) : ControllerBase
 {
-    private readonly ILogger<AnalyticsController> _logger;
-    private readonly IAnalyticsService _analyticsService;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AnalyticsController"/> class
-    /// </summary>
-    /// <param name="analyticsService">Analytics service</param>
-    /// <param name="logger">Logger</param>
-    public AnalyticsController(
-        IAnalyticsService analyticsService,
-        ILogger<AnalyticsController> logger)
-    {
-        _analyticsService = analyticsService;
-        _logger = logger;
-    }
+    private readonly ILogger<AnalyticsController> _logger = logger;
+    private readonly IAnalyticsService _analyticsService = analyticsService;
 
     /// <summary>
     /// Retrieves a list of all sport bikes available for rental

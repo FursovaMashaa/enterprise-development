@@ -9,31 +9,17 @@ namespace BikeRental.Application.Services;
 /// Service implementation for managing bike rental operations.
 /// Provides CRUD operations and various queries for rental transactions.
 /// </summary>
-public class RentalService : IRentalService
+public class RentalService(
+    IRepository<Rental, int> rentalRepository, 
+    IRepository<Bike, int> bikeRepository,     
+    IRepository<Renter, int> renterRepository, 
+    IMapper mapper
+) : IRentalService
 {
-    private readonly IRepository<Rental, int> _rentalRepository;
-    private readonly IRepository<Bike, int> _bikeRepository;
-    private readonly IRepository<Renter, int> _renterRepository;
-    private readonly IMapper _mapper;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RentalService"/> class
-    /// </summary>
-    /// <param name="rentalRepository">Repository for rental entities</param>
-    /// <param name="bikeRepository">Repository for bike entities</param>
-    /// <param name="renterRepository">Repository for renter entities</param>
-    /// <param name="mapper">AutoMapper instance for object mapping</param>
-    public RentalService(
-        IRepository<Rental, int> rentalRepository, 
-        IRepository<Bike, int> bikeRepository,     
-        IRepository<Renter, int> renterRepository, 
-        IMapper mapper)
-    {
-        _rentalRepository = rentalRepository;
-        _bikeRepository = bikeRepository;
-        _renterRepository = renterRepository;
-        _mapper = mapper;
-    }
+    private readonly IRepository<Rental, int> _rentalRepository = rentalRepository;
+    private readonly IRepository<Bike, int> _bikeRepository = bikeRepository;
+    private readonly IRepository<Renter, int> _renterRepository = renterRepository;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Creates a new rental transaction

@@ -22,22 +22,22 @@ public class BikeRentalDbContext : DbContext
     /// <summary>
     /// Gets or sets the bike models collection in the database
     /// </summary>
-    public DbSet<BikeModel>? BikeModels { get; set; }
+    public DbSet<BikeModel> BikeModels { get; set; }
 
     /// <summary>
     /// Gets or sets the bikes collection in the database
     /// </summary>
-    public DbSet<Bike>? Bikes { get; set; }
+    public DbSet<Bike> Bikes { get; set; }
 
     /// <summary>
     /// Gets or sets the renters collection in the database
     /// </summary>
-    public DbSet<Renter>? Renters { get; set; }
+    public DbSet<Renter> Renters { get; set; }
 
     /// <summary>
     /// Gets or sets the rentals collection in the database
     /// </summary>
-    public DbSet<Rental>? Rentals { get; set; }
+    public DbSet<Rental> Rentals { get; set; }
 
     /// <summary>
     /// Configures the database provider and connection settings for the context
@@ -45,10 +45,6 @@ public class BikeRentalDbContext : DbContext
     /// <param name="optionsBuilder">Options builder for configuring DbContext options</param>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseMongoDB("mongodb://localhost:27017", "bikerental");
-        }
         
         optionsBuilder.EnableThreadSafetyChecks(false);
     }

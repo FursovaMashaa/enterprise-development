@@ -11,22 +11,12 @@ namespace BikeRental.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/BikeModels")]
-public class BikeModelsController : CrudControllerBase<BikeModelDto, BikeModelCreateUpdateDto, int>
+public class BikeModelsController(
+    IBikeModelService modelService,
+    ILogger<BikeModelsController> logger
+) : CrudControllerBase<BikeModelDto, BikeModelCreateUpdateDto, int>(modelService, logger)
 {
-    private readonly IBikeModelService _modelService;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BikeModelsController"/> class
-    /// </summary>
-    /// <param name="modelService">Bike model service</param>
-    /// <param name="logger">Logger</param>
-    public BikeModelsController(
-        IBikeModelService modelService,
-        ILogger<BikeModelsController> logger)
-        : base(modelService, logger)
-    {
-        _modelService = modelService;
-    }
+    private readonly IBikeModelService _modelService = modelService;
 
     /// <summary>
     /// Retrieves all bikes associated with a specific bike model

@@ -11,9 +11,10 @@ using BikeRental.Application.Services;
 using BikeRental.Infrastructure.EfCore.Repository;
 using BikeRental.Infrastructure.EfCore;
 using BikeRental.Domain.DataSeeder;
-using MongoDB.Driver;
 using BikeRental.ServiceDefaults;
+using MongoDB.Driver;
 using System.Text.Json.Serialization;
+using System.Reflection; // Добавьте эту директиву
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,17 +49,72 @@ builder.Services.AddControllers()
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Добавляем XML комментарии из текущего проекта (API)
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+        Console.WriteLine($"Loaded XML comments from: {xmlPath}");
+    }
+    else
+    {
+        Console.WriteLine($"XML file not found: {xmlPath}");
+    }
 
-// MongoDB client configuration
-builder.Services.AddSingleton<IMongoClient>(sp => 
-    new MongoClient("mongodb://localhost:27017"));
+    // Добавляем XML комментарии из проекта Application.Contracts
+    try
+    {
+        // Получаем сборку с DTO (например, используя BikeDto)
+        var contractsAssembly = typeof(BikeRental.Application.Contracts.Bike.BikeDto).Assembly;
+        var contractsXmlFile = $"{contractsAssembly.GetName().Name}.xml";
+        
+        // Ищем XML файл в нескольких местах
+        var possiblePaths = new[]
+        {
+            Path.Combine(AppContext.BaseDirectory, contractsXmlFile),
+            Path.Combine(Path.GetDirectoryName(contractsAssembly.Location) ?? "", contractsXmlFile),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "BikeRental.Application.Contracts", "bin", "Debug", "net8.0", contractsXmlFile),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "BikeRental.Application.Contracts", "bin", "Release", "net8.0", contractsXmlFile)
+        };
 
-// Entity Framework Core DbContext configuration with MongoDB provider
+        bool contractsXmlLoaded = false;
+        foreach (var path in possiblePaths)
+        {
+            if (File.Exists(path))
+            {
+                c.IncludeXmlComments(path, true); // true - включить комментарии из включаемых типов
+                Console.WriteLine($"Loaded Contracts XML comments from: {path}");
+                contractsXmlLoaded = true;
+                break;
+            }
+        }
+
+        if (!contractsXmlLoaded)
+        {
+            Console.WriteLine($"Contracts XML file not found. Searched in:");
+            foreach (var path in possiblePaths)
+            {
+                Console.WriteLine($"  {path}");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error loading XML comments from Contracts assembly: {ex.Message}");
+    }
+});
+
+// Добавьте MongoDB клиент через Aspire (как в примере)
+builder.AddMongoDBClient("bikerental");
+
+// Настройка DbContext через DI (как в примере)
 builder.Services.AddDbContext<BikeRentalDbContext>((services, options) =>
 {
-    var mongoClient = services.GetRequiredService<IMongoClient>();
-    options.UseMongoDB(mongoClient, "bikerental");
+    var db = services.GetRequiredService<IMongoDatabase>();
+    options.UseMongoDB(db.Client, db.DatabaseNamespace.DatabaseName);
 });
 
 var app = builder.Build();
@@ -78,7 +134,7 @@ try
         context.Database.EnsureCreated();
 
         // Check if database already contains data
-        if (!context.BikeModels!.Any())
+        if (!context.BikeModels.Any())
         {
             var models = seeder.Models;
             var renters = seeder.Renters;
@@ -86,10 +142,10 @@ try
             var rentals = seeder.Rentals;
 
             // Seed database with test data
-            context.BikeModels!.AddRange(models);
-            context.Renters!.AddRange(renters);
-            context.Bikes!.AddRange(bikes);
-            context.Rentals!.AddRange(rentals);
+            context.BikeModels.AddRange(models);
+            context.Renters.AddRange(renters);
+            context.Bikes.AddRange(bikes);
+            context.Rentals.AddRange(rentals);
 
             context.SaveChanges();
             Console.WriteLine("Database seeded with test data!");
@@ -110,7 +166,12 @@ catch (Exception ex)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Bike Rental API V1");
+        c.RoutePrefix = "swagger"; // Делает Swagger доступным по /swagger
+        c.DisplayRequestDuration(); // Показывать время выполнения запросов
+    });
 }
 
 // Configure middleware pipeline

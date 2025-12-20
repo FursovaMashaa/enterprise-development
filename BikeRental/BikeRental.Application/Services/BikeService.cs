@@ -9,27 +9,15 @@ namespace BikeRental.Application.Services;
 /// Service implementation for managing bikes in the rental system.
 /// Provides CRUD operations and specialized queries for bike entities.
 /// </summary>
-public class BikeService : IBikeService
+public class BikeService(
+    IRepository<Bike, int> bikeRepository,    
+    IRepository<BikeModel, int> modelRepository,
+    IMapper mapper
+) : IBikeService
 {
-    private readonly IRepository<Bike, int> _bikeRepository;   
-    private readonly IRepository<BikeModel, int> _modelRepository;
-    private readonly IMapper _mapper;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BikeService"/> class
-    /// </summary>
-    /// <param name="bikeRepository">Repository for bike entities</param>
-    /// <param name="modelRepository">Repository for bike model entities</param>
-    /// <param name="mapper">AutoMapper instance for object mapping</param>
-    public BikeService(
-        IRepository<Bike, int> bikeRepository,    
-        IRepository<BikeModel, int> modelRepository,
-        IMapper mapper)
-    {
-        _bikeRepository = bikeRepository;
-        _modelRepository = modelRepository;
-        _mapper = mapper;
-    }
+    private readonly IRepository<Bike, int> _bikeRepository = bikeRepository;   
+    private readonly IRepository<BikeModel, int> _modelRepository = modelRepository;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Creates a new bike

@@ -11,26 +11,14 @@ namespace BikeRental.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class RentersController : CrudControllerBase<RenterDto, RenterCreateUpdateDto, int>
+public class RentersController(
+    IRenterService renterService,
+    IRentalService rentalService,
+    ILogger<RentersController> logger
+) : CrudControllerBase<RenterDto, RenterCreateUpdateDto, int>(renterService, logger)
 {
-    private readonly IRenterService _renterService;
-    private readonly IRentalService _rentalService;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RentersController"/> class
-    /// </summary>
-    /// <param name="renterService">Renter service for CRUD operations</param>
-    /// <param name="rentalService">Rental service for accessing rental data</param>
-    /// <param name="logger">Logger for tracking operations</param>
-    public RentersController(
-        IRenterService renterService,
-        IRentalService rentalService,
-        ILogger<RentersController> logger)
-        : base(renterService, logger)
-    {
-        _renterService = renterService;
-        _rentalService = rentalService;
-    }
+    private readonly IRenterService _renterService = renterService;
+    private readonly IRentalService _rentalService = rentalService;
 
     /// <summary>
     /// Retrieves all rental records for a specific renter
