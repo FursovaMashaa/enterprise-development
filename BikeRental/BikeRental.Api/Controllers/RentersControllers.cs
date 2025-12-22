@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using BikeRental.Application.Contracts.Rental;
 using BikeRental.Application.Contracts.Renter;
 

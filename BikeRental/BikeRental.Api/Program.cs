@@ -51,7 +51,6 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    // Добавляем XML комментарии из текущего проекта (API)
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
@@ -64,14 +63,11 @@ builder.Services.AddSwaggerGen(c =>
         Console.WriteLine($"XML file not found: {xmlPath}");
     }
 
-    // Добавляем XML комментарии из проекта Application.Contracts
     try
     {
-        // Получаем сборку с DTO (например, используя BikeDto)
         var contractsAssembly = typeof(BikeRental.Application.Contracts.Bike.BikeDto).Assembly;
         var contractsXmlFile = $"{contractsAssembly.GetName().Name}.xml";
         
-        // Ищем XML файл в нескольких местах
         var possiblePaths = new[]
         {
             Path.Combine(AppContext.BaseDirectory, contractsXmlFile),
@@ -107,10 +103,8 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-// Добавьте MongoDB клиент через Aspire (как в примере)
 builder.AddMongoDBClient("bikerental");
 
-// Настройка DbContext через DI (как в примере)
 builder.Services.AddDbContext<BikeRentalDbContext>((services, options) =>
 {
     var db = services.GetRequiredService<IMongoDatabase>();
@@ -169,8 +163,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Bike Rental API V1");
-        c.RoutePrefix = "swagger"; // Делает Swagger доступным по /swagger
-        c.DisplayRequestDuration(); // Показывать время выполнения запросов
+        c.RoutePrefix = "swagger";
+        c.DisplayRequestDuration(); 
     });
 }
 
