@@ -24,15 +24,19 @@ public class RentalService(
     /// <exception cref="ArgumentException">Thrown when bike or renter does not exist</exception>
     public async Task<RentalDto> Create(RentalCreateUpdateDto dto)
     {
-        var bike = await bikeRepository.Read(dto.BikeId) ?? throw new ArgumentException($"Bike with id {dto.BikeId} not found");
-        var renter = await renterRepository.Read(dto.RenterId) ?? throw new ArgumentException($"Renter with id {dto.RenterId} not found");
+    var allRentals = await rentalRepository.ReadAll();
+    var maxId = allRentals.Any() ? allRentals.Max(r => r.Id) : 0;
+    
+    var bike = await bikeRepository.Read(dto.BikeId) ?? throw new ArgumentException($"Bike with id {dto.BikeId} not found");
+    var renter = await renterRepository.Read(dto.RenterId) ?? throw new ArgumentException($"Renter with id {dto.RenterId} not found");
 
-        var rental = mapper.Map<Rental>(dto);
-        rental.BikeId = dto.BikeId;
-        rental.RenterId = dto.RenterId;
+    var rental = mapper.Map<Rental>(dto);
+    rental.Id = maxId + 1; 
+    rental.BikeId = dto.BikeId;
+    rental.RenterId = dto.RenterId;
 
-        var created = await rentalRepository.Create(rental);
-        return mapper.Map<RentalDto>(created);
+    var created = await rentalRepository.Create(rental);
+    return mapper.Map<RentalDto>(created);
     }
 
     /// <summary>

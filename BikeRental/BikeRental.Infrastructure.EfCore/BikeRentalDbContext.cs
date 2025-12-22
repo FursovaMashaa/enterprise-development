@@ -61,8 +61,7 @@ public class BikeRentalDbContext : DbContext
 
             builder.HasKey(bm => bm.Id);
             builder.Property(bm => bm.Id)
-                    .HasElementName("_id")
-                    .ValueGeneratedOnAdd();
+                    .HasElementName("_id");
 
             builder.Property(bm => bm.BikeType)
                     .IsRequired()
@@ -94,8 +93,7 @@ public class BikeRentalDbContext : DbContext
 
             builder.HasKey(b => b.Id);
             builder.Property(b => b.Id)
-                .HasElementName("_id")
-                .ValueGeneratedOnAdd();
+                .HasElementName("_id");
 
             builder.Property(b => b.SerialNumber)
                 .IsRequired()
@@ -119,8 +117,7 @@ public class BikeRentalDbContext : DbContext
             
             builder.HasKey(r => r.Id);
             builder.Property(r => r.Id)
-                .HasElementName("_id")
-                .ValueGeneratedOnAdd();
+                .HasElementName("_id");
             
             builder.Property(r => r.LastName)
                 .IsRequired()

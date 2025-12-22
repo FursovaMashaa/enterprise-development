@@ -22,15 +22,19 @@ public class BikeService(
     /// <returns>The created bike DTO</returns>
     /// <exception cref="ArgumentException">Thrown when the specified model does not exist</exception>
     public async Task<BikeDto> Create(BikeCreateUpdateDto dto)
-{
+    {
+    var allBikes = await bikeRepository.ReadAll();
+    var maxId = allBikes.Any() ? allBikes.Max(b => b.Id) : 0;
+    
     var model = await modelRepository.Read(dto.ModelId) ?? throw new ArgumentException($"Model with id {dto.ModelId} not found");
 
     var bike = mapper.Map<Bike>(dto);
+    bike.Id = maxId + 1;
     bike.Model = model;
 
     var created = await bikeRepository.Create(bike);
     return mapper.Map<BikeDto>(created);
-}
+    }
 
     /// <summary>
     /// Deletes a bike by its identifier

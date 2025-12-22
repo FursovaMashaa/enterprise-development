@@ -14,7 +14,7 @@ using BikeRental.Domain.DataSeeder;
 using BikeRental.ServiceDefaults;
 using MongoDB.Driver;
 using System.Text.Json.Serialization;
-using System.Reflection; // Добавьте эту директиву
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,7 +80,7 @@ builder.Services.AddSwaggerGen(c =>
             Path.Combine(Directory.GetCurrentDirectory(), "..", "BikeRental.Application.Contracts", "bin", "Release", "net8.0", contractsXmlFile)
         };
 
-        bool contractsXmlLoaded = false;
+        var contractsXmlLoaded = false;
         foreach (var path in possiblePaths)
         {
             if (File.Exists(path))
@@ -125,7 +125,7 @@ app.MapDefaultEndpoints();
 // Database initialization and data seeding
 try
 {
-    using (var scope = app.Services.CreateScope())
+    using var scope = app.Services.CreateScope();
     {
         var context = scope.ServiceProvider.GetRequiredService<BikeRentalDbContext>();
         var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
