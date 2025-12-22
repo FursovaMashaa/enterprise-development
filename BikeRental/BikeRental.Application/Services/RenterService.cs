@@ -16,10 +16,6 @@ public class RenterService(
     IMapper mapper
 ) : IRenterService
 {
-    private readonly IRepository<Renter, int> _renterRepository = renterRepository;
-    private readonly IRepository<Rental, int> _rentRepository = rentRepository;
-    private readonly IMapper _mapper = mapper;
-    
     /// <summary>
     /// Creates a new renter
     /// </summary>
@@ -27,9 +23,9 @@ public class RenterService(
     /// <returns>The created renter DTO</returns>
     public async Task<RenterDto> Create(RenterCreateUpdateDto dto)
     {
-        var renter = _mapper.Map<Renter>(dto);
-        var created = await _renterRepository.Create(renter);
-        return _mapper.Map<RenterDto>(created);
+        var renter = mapper.Map<Renter>(dto);
+        var created = await renterRepository.Create(renter);
+        return mapper.Map<RenterDto>(created);
     }
 
     /// <summary>
@@ -39,7 +35,7 @@ public class RenterService(
     /// <returns>True if deletion was successful, false otherwise</returns>
     public async Task<bool> Delete(int id)
     {
-        return await _renterRepository.Delete(id);
+        return await renterRepository.Delete(id);
     }
 
     /// <summary>
@@ -49,8 +45,8 @@ public class RenterService(
     /// <returns>The renter DTO or null if not found</returns>
     public async Task<RenterDto?> Get(int id)
     {
-        var renter = await _renterRepository.Read(id);
-        return renter != null ? _mapper.Map<RenterDto>(renter) : null;
+        var renter = await renterRepository.Read(id);
+        return renter != null ? mapper.Map<RenterDto>(renter) : null;
     }
 
     /// <summary>
@@ -59,8 +55,8 @@ public class RenterService(
     /// <returns>List of all renter DTOs</returns>
     public async Task<IList<RenterDto>> GetAll()
     {
-        var renters = await _renterRepository.ReadAll();
-        return _mapper.Map<List<RenterDto>>(renters);
+        var renters = await renterRepository.ReadAll();
+        return mapper.Map<List<RenterDto>>(renters);
     }
 
     /// <summary>
@@ -72,13 +68,11 @@ public class RenterService(
     /// <exception cref="KeyNotFoundException">Thrown when the renter is not found</exception>
     public async Task<RenterDto> Update(RenterCreateUpdateDto dto, int id)
     {
-        var renter = await _renterRepository.Read(id);
-        if (renter == null)
-            throw new KeyNotFoundException($"Renter with ID {id} not found.");
+        var renter = await renterRepository.Read(id) ?? throw new KeyNotFoundException($"Renter with ID {id} not found.");
 
-        _mapper.Map(dto, renter);
-        var updated = await _renterRepository.Update(renter);
-        return _mapper.Map<RenterDto>(updated);
+        mapper.Map(dto, renter);
+        var updated = await renterRepository.Update(renter);
+        return mapper.Map<RenterDto>(updated);
     }
 
     /// <summary>
@@ -88,9 +82,9 @@ public class RenterService(
     /// <returns>List of rental DTOs associated with the specified renter</returns>
     public async Task<IList<RentalDto>> GetRenterRentalsAsync(int renterId)
     {
-        var rents = await _rentRepository.ReadAll();
+        var rents = await rentRepository.ReadAll();
         var filtered = rents.Where(r => r.Renter?.Id == renterId).ToList();
-        return _mapper.Map<List<RentalDto>>(filtered);
+        return mapper.Map<List<RentalDto>>(filtered);
     }
 
     /// <summary>
@@ -100,7 +94,7 @@ public class RenterService(
     /// <returns>Total number of rental transactions for the specified renter</returns>
     public async Task<int> GetRenterRentalAsync(int renterId)
     {
-        var rents = await _rentRepository.ReadAll();
+        var rents = await rentRepository.ReadAll();
         return rents.Count(r => r.Renter?.Id == renterId);
     }
 }

@@ -16,11 +16,6 @@ public class RentalService(
     IMapper mapper
 ) : IRentalService
 {
-    private readonly IRepository<Rental, int> _rentalRepository = rentalRepository;
-    private readonly IRepository<Bike, int> _bikeRepository = bikeRepository;
-    private readonly IRepository<Renter, int> _renterRepository = renterRepository;
-    private readonly IMapper _mapper = mapper;
-
     /// <summary>
     /// Creates a new rental transaction
     /// </summary>
@@ -29,20 +24,15 @@ public class RentalService(
     /// <exception cref="ArgumentException">Thrown when bike or renter does not exist</exception>
     public async Task<RentalDto> Create(RentalCreateUpdateDto dto)
     {
-        var bike = await _bikeRepository.Read(dto.BikeId); 
-        if (bike == null)
-            throw new ArgumentException($"Bike with id {dto.BikeId} not found");
+        var bike = await bikeRepository.Read(dto.BikeId) ?? throw new ArgumentException($"Bike with id {dto.BikeId} not found");
+        var renter = await renterRepository.Read(dto.RenterId) ?? throw new ArgumentException($"Renter with id {dto.RenterId} not found");
 
-        var renter = await _renterRepository.Read(dto.RenterId); 
-        if (renter == null)
-            throw new ArgumentException($"Renter with id {dto.RenterId} not found");
-
-        var rental = _mapper.Map<Rental>(dto);
+        var rental = mapper.Map<Rental>(dto);
         rental.BikeId = dto.BikeId;
         rental.RenterId = dto.RenterId;
 
-        var created = await _rentalRepository.Create(rental);
-        return _mapper.Map<RentalDto>(created);
+        var created = await rentalRepository.Create(rental);
+        return mapper.Map<RentalDto>(created);
     }
 
     /// <summary>
@@ -52,7 +42,7 @@ public class RentalService(
     /// <returns>True if deletion was successful, false otherwise</returns>
     public async Task<bool> Delete(int id)
     {
-        return await _rentalRepository.Delete(id);
+        return await rentalRepository.Delete(id);
     }
 
     /// <summary>
@@ -62,8 +52,8 @@ public class RentalService(
     /// <returns>The rental DTO or null if not found</returns>
     public async Task<RentalDto?> Get(int id)
     {
-        var rental = await _rentalRepository.Read(id);
-        return rental != null ? _mapper.Map<RentalDto>(rental) : null;
+        var rental = await rentalRepository.Read(id);
+        return rental != null ? mapper.Map<RentalDto>(rental) : null;
     }
 
     /// <summary>
@@ -72,8 +62,8 @@ public class RentalService(
     /// <returns>List of all rental DTOs</returns>
     public async Task<IList<RentalDto>> GetAll()
     {
-        var rentals = await _rentalRepository.ReadAll();
-        return _mapper.Map<List<RentalDto>>(rentals);
+        var rentals = await rentalRepository.ReadAll();
+        return mapper.Map<List<RentalDto>>(rentals);
     }
 
     /// <summary>
@@ -86,24 +76,16 @@ public class RentalService(
     /// <exception cref="ArgumentException">Thrown when bike or renter does not exist</exception>
     public async Task<RentalDto> Update(RentalCreateUpdateDto dto, int id)
     {
-        var rental = await _rentalRepository.Read(id);
-        if (rental == null)
-            throw new KeyNotFoundException($"Rental {id} not found");
+        var rental = await rentalRepository.Read(id) ?? throw new KeyNotFoundException($"Rental {id} not found");
+        var bike = await bikeRepository.Read(dto.BikeId) ?? throw new ArgumentException($"Bike with id {dto.BikeId} not found");
+        var renter = await renterRepository.Read(dto.RenterId) ?? throw new ArgumentException($"Renter with id {dto.RenterId} not found");
 
-        var bike = await _bikeRepository.Read(dto.BikeId); 
-        if (bike == null)
-            throw new ArgumentException($"Bike with id {dto.BikeId} not found");
-
-        var renter = await _renterRepository.Read(dto.RenterId); 
-        if (renter == null)
-            throw new ArgumentException($"Renter with id {dto.RenterId} not found");
-
-        _mapper.Map(dto, rental);
+        mapper.Map(dto, rental);
         rental.BikeId = dto.BikeId;
         rental.RenterId = dto.RenterId;
 
-        var updated = await _rentalRepository.Update(rental);
-        return _mapper.Map<RentalDto>(updated);
+        var updated = await rentalRepository.Update(rental);
+        return mapper.Map<RentalDto>(updated);
     }
 
     /// <summary>
@@ -113,9 +95,9 @@ public class RentalService(
     /// <returns>List of rental DTOs for the specified renter</returns>
     public async Task<IList<RentalDto>> GetRentalsByRenterAsync(int renterId)
     {
-        var rentals = await _rentalRepository.ReadAll();
+        var rentals = await rentalRepository.ReadAll();
         var filtered = rentals.Where(r => r.RenterId == renterId).ToList();
-        return _mapper.Map<List<RentalDto>>(filtered);
+        return mapper.Map<List<RentalDto>>(filtered);
     }
 
     /// <summary>
@@ -124,11 +106,11 @@ public class RentalService(
     /// <returns>List of active rental DTOs</returns>
     public async Task<IList<RentalDto>> GetActiveRentalsAsync()
     {
-        var rentals = await _rentalRepository.ReadAll();
+        var rentals = await rentalRepository.ReadAll();
         var active = rentals
             .Where(r => r.StartTime.AddHours(r.DurationHours) > DateTime.UtcNow)
             .ToList();
-        return _mapper.Map<List<RentalDto>>(active);
+        return mapper.Map<List<RentalDto>>(active);
     }
 
     /// <summary>
@@ -139,11 +121,11 @@ public class RentalService(
     /// <returns>List of rental DTOs within the specified period</returns>
     public async Task<IList<RentalDto>> GetRentalsByPeriodAsync(DateTime startDate, DateTime endDate)
     {
-        var rentals = await _rentalRepository.ReadAll();
+        var rentals = await rentalRepository.ReadAll();
         var filtered = rentals
             .Where(r => r.StartTime >= startDate && r.StartTime <= endDate)
             .ToList();
-        return _mapper.Map<List<RentalDto>>(filtered);
+        return mapper.Map<List<RentalDto>>(filtered);
     }
 
     /// <summary>
@@ -153,8 +135,8 @@ public class RentalService(
     /// <returns>List of rental DTOs for the specified bike</returns>
     public async Task<IList<RentalDto>> GetRentalsByBikeAsync(int bikeId)
     {
-        var rentals = await _rentalRepository.ReadAll();
+        var rentals = await rentalRepository.ReadAll();
         var filtered = rentals.Where(r => r.BikeId == bikeId).ToList();
-        return _mapper.Map<List<RentalDto>>(filtered);
+        return mapper.Map<List<RentalDto>>(filtered);
     }
 }
