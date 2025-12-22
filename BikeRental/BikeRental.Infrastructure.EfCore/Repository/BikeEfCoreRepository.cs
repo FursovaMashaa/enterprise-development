@@ -8,20 +8,9 @@ namespace BikeRental.Infrastructure.EfCore.Repository;
 /// Entity Framework Core repository implementation for bike entities.
 /// Provides data access operations for bike entities using EF Core with MongoDB provider.
 /// </summary>
-public class BikeEfCoreRepository : IRepository<Bike, int>
+public class BikeEfCoreRepository(BikeRentalDbContext context) : IRepository<Bike, int>
 {
-    private readonly BikeRentalDbContext _context;
-    private readonly DbSet<Bike> _bikes;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BikeEfCoreRepository"/> class
-    /// </summary>
-    /// <param name="context">Database context for bike rental system</param>
-    public BikeEfCoreRepository(BikeRentalDbContext context)
-    {
-        _context = context;
-        _bikes = context.Bikes!;
-    }
+    private readonly DbSet<Bike> _bikes = context.Bikes!;
 
     /// <summary>
     /// Retrieves a bike entity by its identifier
@@ -50,7 +39,7 @@ public class BikeEfCoreRepository : IRepository<Bike, int>
     public async Task<Bike> Create(Bike entity)
     {
         var result = await _bikes.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();  // Используем context, а не _context
         return result.Entity;
     }
 
@@ -62,7 +51,7 @@ public class BikeEfCoreRepository : IRepository<Bike, int>
     public async Task<Bike> Update(Bike entity)
     {
         _bikes.Update(entity);
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();  // Используем context, а не _context
         return entity;
     }
 
@@ -78,7 +67,7 @@ public class BikeEfCoreRepository : IRepository<Bike, int>
             return false;
 
         _bikes.Remove(entity);
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();  // Используем context, а не _context
         return true;
     }
 }

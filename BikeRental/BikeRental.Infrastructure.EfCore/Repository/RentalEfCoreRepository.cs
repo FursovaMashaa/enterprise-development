@@ -8,20 +8,9 @@ namespace BikeRental.Infrastructure.EfCore.Repository;
 /// Entity Framework Core repository implementation for rental entities.
 /// Provides data access operations for rental entities using EF Core with MongoDB provider.
 /// </summary>
-public class RentalEfCoreRepository : IRepository<Rental, int>
+public class RentalEfCoreRepository(BikeRentalDbContext context) : IRepository<Rental, int>
 {
-    private readonly BikeRentalDbContext _context;
-    private readonly DbSet<Rental> _rentals;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RentalEfCoreRepository"/> class
-    /// </summary>
-    /// <param name="context">Database context for bike rental system</param>
-    public RentalEfCoreRepository(BikeRentalDbContext context)
-    {
-        _context = context;
-        _rentals = context.Rentals!;
-    }
+    private readonly DbSet<Rental> _rentals = context.Rentals!;
 
     /// <summary>
     /// Retrieves a rental entity by its identifier
@@ -51,7 +40,7 @@ public class RentalEfCoreRepository : IRepository<Rental, int>
     public async Task<Rental> Create(Rental entity)
     {
         var result = await _rentals.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return result.Entity;
     }
 
@@ -63,7 +52,7 @@ public class RentalEfCoreRepository : IRepository<Rental, int>
     public async Task<Rental> Update(Rental entity)
     {
         _rentals.Update(entity);
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return entity;
     }
 
@@ -79,7 +68,7 @@ public class RentalEfCoreRepository : IRepository<Rental, int>
             return false;
 
         _rentals.Remove(entity);
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return true;
     }
 }
