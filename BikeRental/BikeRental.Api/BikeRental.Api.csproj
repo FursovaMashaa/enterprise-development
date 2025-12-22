@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+  <PackageReference Include="Aspire.NATS.Net" Version="9.5.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Aspire.MongoDB.Driver" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
@@ -19,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BikeRental.Application\BikeRental.Application.csproj" />
     <ProjectReference Include="..\BikeRental.Infrastructure.EfCore\BikeRental.Infrastructure.EfCore.csproj" />
+    <ProjectReference Include="..\BikeRental.Infrastructure.Nats\BikeRental.Infrastructure.Nats.csproj" />
     <ProjectReference Include="..\BikeRental.ServiceDefaults\BikeRental.ServiceDefaults.csproj" />
     <ProjectReference Include="..\BikeRental.Application.Contracts\BikeRental.Application.Contracts.csproj" />
   </ItemGroup>
