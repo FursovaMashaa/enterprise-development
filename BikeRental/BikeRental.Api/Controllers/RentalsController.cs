@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using BikeRental.Application.Contracts.Rental;
 
 namespace BikeRental.Api.Controllers;
@@ -15,5 +14,7 @@ public class RentalsController(
     ILogger<RentalsController> logger
 ) : CrudControllerBase<RentalDto, RentalCreateUpdateDto, int>(service, logger)
 {
-    
+    // Этот контроллер не имеет дополнительных методов,
+    // поэтому просто передает параметры в базовый класс
+    // Все CRUD методы документированы в базовом классе через [ProducesResponseType]
 }

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using BikeRental.Application.Contracts;
 
 namespace BikeRental.Api.Controllers;
@@ -20,17 +19,18 @@ public abstract class CrudControllerBase<TDto, TCreateUpdateDto, TKey>(
     where TDto : class
     where TCreateUpdateDto : class
 {
-    protected readonly ILogger _logger = logger;
-    protected readonly IApplicationService<TDto, TCreateUpdateDto, TKey> _service = service;
-
     /// <summary>
     /// Retrieves all entities
     /// </summary>
     /// <returns>List of all entities</returns>
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<List<TDto>>> GetAll()
     {
-        var items = await _service.GetAll();
+        logger.LogInformation("Getting all entities of type {Type}", typeof(TDto).Name);
+        var items = await service.GetAll();
+        logger.LogInformation("Retrieved {Count} entities of type {Type}", items.Count, typeof(TDto).Name);
         return Ok(items.ToList());
     }
 
@@ -39,15 +39,21 @@ public abstract class CrudControllerBase<TDto, TCreateUpdateDto, TKey>(
     /// </summary>
     /// <param name="id">Entity identifier</param>
     /// <returns>The requested entity</returns>
-    /// <response code="200">Entity found and returned</response>
-    /// <response code="404">Entity not found</response>
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<TDto>> GetById(TKey id)
     {
-        var item = await _service.Get(id);
+        logger.LogInformation("Getting entity of type {Type} with id {Id}", typeof(TDto).Name, id);
+        var item = await service.Get(id);
         if (item == null)
+        {
+            logger.LogWarning("Entity of type {Type} with id {Id} not found", typeof(TDto).Name, id);
             return NotFound();
+        }
 
+        logger.LogInformation("Entity of type {Type} with id {Id} found", typeof(TDto).Name, id);
         return Ok(item);
     }
 
@@ -56,12 +62,16 @@ public abstract class CrudControllerBase<TDto, TCreateUpdateDto, TKey>(
     /// </summary>
     /// <param name="dto">Data for creating the entity</param>
     /// <returns>The newly created entity</returns>
-    /// <response code="201">Entity created successfully</response>
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<TDto>> Create([FromBody] TCreateUpdateDto dto)
     {
-        var item = await _service.Create(dto);
+        logger.LogInformation("Creating new entity of type {Type}", typeof(TDto).Name);
+        var item = await service.Create(dto);
         var id = GetIdValue(item);
+        logger.LogInformation("Created entity of type {Type} with id {Id}", typeof(TDto).Name, id);
         return CreatedAtAction(nameof(GetById), new { id }, item);
     }
 
@@ -71,19 +81,29 @@ public abstract class CrudControllerBase<TDto, TCreateUpdateDto, TKey>(
     /// <param name="id">Identifier of the entity to update</param>
     /// <param name="dto">Updated data for the entity</param>
     /// <returns>The updated entity</returns>
-    /// <response code="200">Entity updated successfully</response>
-    /// <response code="404">Entity not found</response>
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<TDto>> Update(TKey id, [FromBody] TCreateUpdateDto dto)
     {
+        logger.LogInformation("Updating entity of type {Type} with id {Id}", typeof(TDto).Name, id);
         try
         {
-            var item = await _service.Update(dto, id);
+            var item = await service.Update(dto, id);
+            logger.LogInformation("Updated entity of type {Type} with id {Id}", typeof(TDto).Name, id);
             return Ok(item);
         }
         catch (KeyNotFoundException)
         {
+            logger.LogWarning("Entity of type {Type} with id {Id} not found for update", typeof(TDto).Name, id);
             return NotFound();
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Bad request for updating entity of type {Type} with id {Id}", typeof(TDto).Name, id);
+            return BadRequest(ex.Message);
         }
     }
 
@@ -92,21 +112,30 @@ public abstract class CrudControllerBase<TDto, TCreateUpdateDto, TKey>(
     /// </summary>
     /// <param name="id">Identifier of the entity to delete</param>
     /// <returns>Result of the delete operation</returns>
-    /// <response code="200">Entity deleted successfully</response>
-    /// <response code="404">Entity not found</response>
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public virtual async Task<IActionResult> Delete(TKey id)
     {
+        logger.LogInformation("Deleting entity of type {Type} with id {Id}", typeof(TDto).Name, id);
         try
         {
-            var result = await _service.Delete(id);
+            var result = await service.Delete(id);
             if (result)
+            {
+                logger.LogInformation("Deleted entity of type {Type} with id {Id}", typeof(TDto).Name, id);
                 return Ok();
+            }
             else
+            {
+                logger.LogWarning("Entity of type {Type} with id {Id} not found for deletion", typeof(TDto).Name, id);
                 return NotFound();
+            }
         }
         catch (KeyNotFoundException)
         {
+            logger.LogWarning("Entity of type {Type} with id {Id} not found for deletion (KeyNotFoundException)", typeof(TDto).Name, id);
             return NotFound();
         }
     }
