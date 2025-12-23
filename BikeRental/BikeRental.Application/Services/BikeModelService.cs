@@ -24,14 +24,14 @@ public class BikeModelService(
     /// <returns>The created bike model DTO</returns>
     public async Task<BikeModelDto> Create(BikeModelCreateUpdateDto dto)
     {
-    var allModels = await modelRepository.ReadAll();
-    var maxId = allModels.Any() ? allModels.Max(m => m.Id) : 0;
-    
-    var model = mapper.Map<BikeModel>(dto);
-    model.Id = maxId + 1; 
+        var allModels = await modelRepository.ReadAll();
+        var maxId = allModels.Any() ? allModels.Max(m => m.Id) : 0;
+        
+        var model = mapper.Map<BikeModel>(dto);
+        model.Id = maxId + 1; 
 
-    var created = await modelRepository.Create(model);
-    return mapper.Map<BikeModelDto>(created);
+        var created = await modelRepository.Create(model);
+        return mapper.Map<BikeModelDto>(created);
     }
 
     /// <summary>

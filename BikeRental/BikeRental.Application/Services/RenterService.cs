@@ -23,14 +23,14 @@ public class RenterService(
     /// <returns>The created renter DTO</returns>
     public async Task<RenterDto> Create(RenterCreateUpdateDto dto)
     {
-    var allRenters = await renterRepository.ReadAll();
-    var maxId = allRenters.Any() ? allRenters.Max(r => r.Id) : 0;
-    
-    var renter = mapper.Map<Renter>(dto);
-    renter.Id = maxId + 1;
+        var allRenters = await renterRepository.ReadAll();
+        var maxId = allRenters.Any() ? allRenters.Max(r => r.Id) : 0;
+        
+        var renter = mapper.Map<Renter>(dto);
+        renter.Id = maxId + 1;
 
-    var created = await renterRepository.Create(renter);
-    return mapper.Map<RenterDto>(created);
+        var created = await renterRepository.Create(renter);
+        return mapper.Map<RenterDto>(created);
     }
 
     /// <summary>

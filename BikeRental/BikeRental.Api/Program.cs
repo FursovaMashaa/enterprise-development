@@ -125,7 +125,7 @@ app.MapDefaultEndpoints();
 try
 {
     using var scope = app.Services.CreateScope();
-    {
+
         var context = scope.ServiceProvider.GetRequiredService<BikeRentalDbContext>();
         var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
 
@@ -153,7 +153,6 @@ try
         {
             Console.WriteLine("Database already contains data.");
         }
-    }
 }
 catch (Exception ex)
 {

@@ -10,7 +10,7 @@ namespace BikeRental.Infrastructure.EfCore.Repository;
 /// </summary>
 public class BikeEfCoreRepository(BikeRentalDbContext context) : IRepository<Bike, int>
 {
-    private readonly DbSet<Bike> _bikes = context.Bikes!;
+    private readonly DbSet<Bike> _bikes = context.Bikes;
 
     /// <summary>
     /// Retrieves a bike entity by its identifier
