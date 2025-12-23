@@ -9,6 +9,7 @@ using BikeRental.Application.Contracts;
 using BikeRental.Application;
 using BikeRental.Application.Services;
 using BikeRental.Infrastructure.EfCore.Repository;
+using BikeRental.Infrastructure.Nats;
 using BikeRental.Infrastructure.EfCore;
 using BikeRental.Domain.DataSeeder;
 using BikeRental.ServiceDefaults;
@@ -110,6 +111,10 @@ builder.Services.AddDbContext<BikeRentalDbContext>((services, options) =>
     var db = services.GetRequiredService<IMongoDatabase>();
     options.UseMongoDB(db.Client, db.DatabaseNamespace.DatabaseName);
 });
+
+
+builder.Services.AddHostedService<BikeRentalNatsConsumer>();
+builder.AddNatsClient("bikerental-nats");
 
 var app = builder.Build();
 
