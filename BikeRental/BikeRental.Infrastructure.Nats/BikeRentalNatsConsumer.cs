@@ -9,6 +9,9 @@ using NATS.Net;
 
 namespace BikeRental.Infrastructure.Nats;
 
+/// <summary>
+/// Background service for processing bike rental messages from NATS JetStream.
+/// </summary>
 public class BikeRentalNatsConsumer(
     INatsConnection connection,
     IServiceScopeFactory scopeFactory,
@@ -16,12 +19,12 @@ public class BikeRentalNatsConsumer(
     ILogger<BikeRentalNatsConsumer> logger
 ) : BackgroundService
 {
-    private readonly string _streamName = configuration.GetSection("Nats")["StreamName"] 
-        ?? "bikerental"; 
+    private readonly string _streamName = configuration.GetSection("Nats")["StreamName"] ?? "bikerental"; 
+    private readonly string _subjectName = configuration.GetSection("Nats")["SubjectName"] ?? "bikerental.events"; 
     
-    private readonly string _subjectName = configuration.GetSection("Nats")["SubjectName"] 
-        ?? "bikerental.events"; 
-    
+    /// <summary>
+    /// Consumes rental messages from NATS and processes them through the rental service.
+    /// </summary>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try

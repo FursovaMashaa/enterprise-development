@@ -3,8 +3,16 @@ using Bogus;
 
 namespace BikeRental.Generator.Nats.Host;
 
+/// <summary>
+/// Generator for test rental data.
+/// </summary>
 public static class RentalGenerator
 {
+    /// <summary>
+    /// Generates a batch of test rental records.
+    /// </summary>
+    /// <param name="count">Number of records to generate.</param>
+    /// <returns>List of test rental data.</returns>
     public static IList<RentalCreateUpdateDto> GenerateBatch(int count) =>
         new Faker<RentalCreateUpdateDto>()
             .CustomInstantiator(f => new RentalCreateUpdateDto(
