@@ -1,10 +1,19 @@
+using BikeRental.Application.Contracts.Nats;
 using BikeRental.Generator.Nats.Host;
 using BikeRental.Generator.Nats.Host.Interfaces;
 using BikeRental.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services
+    .AddOptions<NatsOptions>()
+    .Bind(builder.Configuration.GetSection(NatsOptions.SectionName))
+    .Validate(o => !string.IsNullOrWhiteSpace(o.StreamName), "Nats:StreamName is required")
+    .Validate(o => !string.IsNullOrWhiteSpace(o.SubjectName), "Nats:SubjectName is required")
+    .ValidateOnStart();
+    
 builder.AddServiceDefaults();
+
 builder.AddNatsClient("bikerental-nats");
 builder.Services.AddScoped<IProducerService, BikeRentalNatsProducer>();
 builder.Services.AddControllers();

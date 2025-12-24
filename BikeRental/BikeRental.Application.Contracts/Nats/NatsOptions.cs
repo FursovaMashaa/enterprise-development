@@ -1,4 +1,4 @@
-namespace BikeRental.Generator.Nats.Host.Options;
+namespace BikeRental.Application.Contracts.Nats;
 
 /// <summary>
 /// Typed configuration options for NATS message broker

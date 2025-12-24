@@ -19,7 +19,7 @@ public static class RentalGenerator
                 StartTime: DateTime.UtcNow.AddHours(f.Random.Int(1, 72)),
                 DurationHours: f.Random.Int(1, 24),
                 BikeId: f.Random.Int(1, 10),
-                RenterId: f.Random.Int(1, 20)
+                RenterId: f.Random.Int(1, 10)
             ))
             .Generate(count);
 }

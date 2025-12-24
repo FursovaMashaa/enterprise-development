@@ -1,8 +1,11 @@
 using BikeRental.Application.Contracts.Rental;
-using Microsoft.Extensions.Configuration;
+using BikeRental.Application.Contracts.Nats;
+using BikeRental.Application.Contracts;
+using BikeRental.Infrastructure.Nats.Deserializers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NATS.Client.Core;
 using NATS.Client.JetStream.Models;
 using NATS.Net;
@@ -15,12 +18,12 @@ namespace BikeRental.Infrastructure.Nats;
 public class BikeRentalNatsConsumer(
     INatsConnection connection,
     IServiceScopeFactory scopeFactory,
-    IConfiguration configuration,
+    IOptions<NatsOptions> options,
     ILogger<BikeRentalNatsConsumer> logger
 ) : BackgroundService
 {
-    private readonly string _streamName = configuration.GetSection("Nats")["StreamName"] ?? "bikerental"; 
-    private readonly string _subjectName = configuration.GetSection("Nats")["SubjectName"] ?? "bikerental.events"; 
+    private readonly string _streamName = options.Value.StreamName; 
+    private readonly string _subjectName = options.Value.SubjectName; 
     
     /// <summary>
     /// Consumes rental messages from NATS and processes them through the rental service.
@@ -51,39 +54,26 @@ public class BikeRentalNatsConsumer(
             
             logger.LogInformation("Consumer created for stream '{Stream}'", _streamName);
 
-            while (!stoppingToken.IsCancellationRequested)
+            await foreach (var message in consumer.ConsumeAsync(new BikeRentalPayloadDeserializer(), cancellationToken: stoppingToken))
             {
-                await foreach (var message in consumer.ConsumeAsync<IList<RentalCreateUpdateDto>>(
-                    cancellationToken: stoppingToken))
-                {
-                    if (message.Data is null) continue;
+                if (message.Data is null)
+                    continue;
 
-                    using var scope = scopeFactory.CreateScope();
-                    var rentalService = scope.ServiceProvider.GetRequiredService<IRentalService>();
-                    
-                    foreach (var rental in message.Data)
-                    {
-                        await rentalService.Create(rental);
-                    }
-                    
-                    logger.LogInformation(
-                        "Successfully consumed {Count} contracts from stream '{Stream}'", 
-                        message.Data.Count, _streamName
-                    );
-                }
+                using var scope = scopeFactory.CreateScope();
+                var rentalService = scope.ServiceProvider.GetRequiredService<IApplicationService<RentalDto, RentalCreateUpdateDto, int>>();
+
+                foreach (var rental in message.Data)
+                    await rentalService.Create(rental);
+
+                await message.AckAsync(cancellationToken: stoppingToken);
+
+                logger.LogInformation("Successfully consumed message from subject {subject} of stream {stream}", _subjectName, _streamName);
             }
-        }
-        catch (OperationCanceledException)
-        {
-            logger.LogInformation("Consumer stopped");
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex, 
-                "Exception occured during receiving rental contracts from {subject}/{stream}", 
-                _subjectName, _streamName
-            );
+            logger.LogError(ex, "Consumer failed to start stream={stream} subject={subject} message={message}",
+                _streamName, _subjectName, ex.Message);
         }
     }
 }

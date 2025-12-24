@@ -1,8 +1,11 @@
 ﻿using BikeRental.Application.Contracts.Rental;
+using BikeRental.Application.Contracts.Nats;
 using BikeRental.Generator.Nats.Host.Interfaces;
+using Microsoft.Extensions.Options;
 using NATS.Client.Core;
-using NATS.Net;
+using NATS.Client.JetStream.Models;
 using System.Text.Json;
+using NATS.Net;
 
 namespace BikeRental.Generator.Nats.Host;
 
@@ -10,19 +13,14 @@ namespace BikeRental.Generator.Nats.Host;
 /// Implementation for sending rental contracts to NATS JetStream
 /// Connects to NATS, ensures stream exists, and publishes batches of rental contracts
 /// </summary>
-/// <param name="configuration">Application configuration for retrieving NATS settings</param>
-/// <param name="connection">NATS connection instance</param>
-/// <param name="logger">Logger for tracking operations and errors</param>
 public class BikeRentalNatsProducer(
-    IConfiguration configuration,
+    IOptions<NatsOptions> options,
     INatsConnection connection,
     ILogger<BikeRentalNatsProducer> logger
 ) : IProducerService
 {
-    private readonly string _streamName = configuration.GetSection("Nats")["StreamName"] 
-        ?? throw new KeyNotFoundException("StreamName section of Nats is missing");
-    private readonly string _subjectName = configuration.GetSection("Nats")["SubjectName"] 
-        ?? throw new KeyNotFoundException("SubjectName section of Nats is missing");
+    private readonly string _streamName = options.Value.StreamName;
+    private readonly string _subjectName = options.Value.SubjectName;
 
     /// <summary>
     /// Sends a batch of rental contracts to NATS JetStream
@@ -38,7 +36,7 @@ public class BikeRentalNatsProducer(
         {
             await connection.ConnectAsync();
             var context = connection.CreateJetStreamContext();
-            var stream = await context.CreateOrUpdateStreamAsync(new NATS.Client.JetStream.Models.StreamConfig(_streamName, [_subjectName]));
+            var stream = await context.CreateOrUpdateStreamAsync(new StreamConfig(_streamName, [_subjectName]));
             logger.LogInformation("Establishing a stream {stream} with subject {subject}", _streamName, _subjectName);
 
             await context.PublishAsync(_subjectName, JsonSerializer.SerializeToUtf8Bytes(batch));                        

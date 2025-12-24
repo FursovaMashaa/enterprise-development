@@ -3,6 +3,7 @@ using BikeRental.Domain;
 using BikeRental.Domain.Models;
 using BikeRental.Application.Contracts.Bike;
 using BikeRental.Application.Contracts.BikeModel;
+using BikeRental.Application.Contracts.Nats;
 using BikeRental.Application.Contracts.Renter;
 using BikeRental.Application.Contracts.Rental;
 using BikeRental.Application.Contracts;
@@ -22,6 +23,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add default service configurations
 builder.AddServiceDefaults();
 
+builder.Services
+    .AddOptions<NatsOptions>()
+    .Bind(builder.Configuration.GetSection(NatsOptions.SectionName))
+    .Validate(o => !string.IsNullOrWhiteSpace(o.StreamName), "Nats:StreamName is required")
+    .Validate(o => !string.IsNullOrWhiteSpace(o.SubjectName), "Nats:SubjectName is required")
+    .ValidateOnStart();
+
 // AutoMapper configuration for DTO mappings
 builder.Services.AddAutoMapper(config => config.AddProfile<BikeRentalProfile>());
 
@@ -40,6 +48,8 @@ builder.Services.AddScoped<IBikeModelService, BikeModelService>();
 builder.Services.AddScoped<IRenterService, RenterService>();
 builder.Services.AddScoped<IRentalService, RentalService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+
+builder.Services.AddScoped<IApplicationService<RentalDto, RentalCreateUpdateDto, int>, RentalService>();
 
 // Controller configuration with JSON serialization options
 builder.Services.AddControllers()
@@ -126,33 +136,34 @@ try
 {
     using var scope = app.Services.CreateScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<BikeRentalDbContext>();
-        var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+    var context = scope.ServiceProvider.GetRequiredService<BikeRentalDbContext>();
+    var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
 
-        // Ensure database is created
-        context.Database.EnsureCreated();
+    // Ensure database is created
+    context.Database.EnsureCreated();
 
         // Check if database already contains data
-        if (!context.BikeModels.Any())
-        {
-            var models = seeder.Models;
-            var renters = seeder.Renters;
-            var bikes = seeder.Bikes;
-            var rentals = seeder.Rentals;
+    if (!context.BikeModels.Any())
+    {
+        var models = seeder.Models;
+        var renters = seeder.Renters;
+        var bikes = seeder.Bikes;
+        var rentals = seeder.Rentals;
 
-            // Seed database with test data
-            context.BikeModels.AddRange(models);
-            context.Renters.AddRange(renters);
-            context.Bikes.AddRange(bikes);
-            context.Rentals.AddRange(rentals);
+        // Seed database with test data
+        context.BikeModels.AddRange(models);
+        context.Renters.AddRange(renters);
+        context.Bikes.AddRange(bikes);
+        context.Rentals.AddRange(rentals);
 
-            context.SaveChanges();
-            Console.WriteLine("Database seeded with test data!");
-        }
-        else
-        {
-            Console.WriteLine("Database already contains data.");
-        }
+        context.SaveChanges();
+        Console.WriteLine("Database seeded with test data!");
+    }
+    else
+    {
+        Console.WriteLine("Database already contains data.");
+    }
+
 }
 catch (Exception ex)
 {
